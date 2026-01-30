@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使い方ガイド - ピッキング練習トレーナー</title>
+  <style>
+    :root {
+      --color-primary: #4f6ef7;
+      --color-primary-dark: #3b5de7;
+      --color-primary-light: #eef2ff;
+      --color-primary-rgb: 79, 110, 247;
+      --color-gray-50: #f8fafc;
+      --color-gray-100: #f1f5f9;
+      --color-gray-200: #e2e8f0;
+      --color-gray-300: #cbd5e1;
+      --color-gray-400: #94a3b8;
+      --color-gray-500: #64748b;
+      --color-gray-600: #475569;
+      --color-gray-700: #334155;
+      --color-gray-800: #1e293b;
+      --color-gray-900: #0f172a;
+      --color-white: #ffffff;
+      --color-success: #22c55e;
+      --color-success-light: #f0fdf4;
+      --color-warning: #f59e0b;
+      --color-warning-light: #fffbeb;
+      --color-danger: #ef4444;
+      --color-danger-light: #fef2f2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--color-white);
+      color: var(--color-gray-800);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* =============================================
+       ページヘッダー
+       ============================================= */
+    .guide-header {
+      background: linear-gradient(135deg, #4338ca 0%, #4f6ef7 40%, #6366f1 65%, #8b5cf6 100%);
+      color: var(--color-white);
+      text-align: center;
+      padding: 48px 24px 40px;
+    }
+
+    .guide-header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .guide-header p {
+      opacity: 0.85;
+      margin-top: 8px;
+      font-size: 0.9375rem;
+    }
+
+    .guide-nav-links {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .guide-nav-links a {
+      color: var(--color-white);
+      background: rgba(255,255,255,0.15);
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .guide-nav-links a:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* =============================================
+       コンテナ・セクション共通
+       ============================================= */
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      padding: 64px 0;
+      scroll-margin-top: 24px;
+    }
+
+    .section-bg {
+      background: var(--color-gray-50);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-header .section-label {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+      padding: 4px 14px;
+      background: var(--color-primary-light);
+      border-radius: 6px;
+    }
+
+    .section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      font-size: 0.9375rem;
+      color: var(--color-gray-500);
+    }
+
+    /* =============================================
+       目次
+       ============================================= */
+    .toc {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+      padding: 28px 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .toc-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 16px;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .toc-list a {
+      color: var(--color-gray-700);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      transition: color 0.2s;
+    }
+
+    .toc-list li:last-child a {
+      border-bottom: none;
+    }
+
+    .toc-list a:hover {
+      color: var(--color-primary);
+    }
+
+    .toc-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* =============================================
+       ガイドテキスト
+       ============================================= */
+    .guide-text {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .guide-text p {
+      font-size: 0.9375rem;
+      color: var(--color-gray-600);
+      line-height: 2;
+    }
+
+    .guide-text p + p {
+      margin-top: 14px;
+    }
+
+    .guide-text h3 {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin: 28px 0 10px;
+    }
+
+    .guide-text ul, .guide-text ol {
+      padding-left: 24px;
+      margin: 10px 0;
+    }
+
+    .guide-text li {
+      font-size: 0.9375rem;
+      color: var(--color-gray-600);
+      line-height: 2;
+    }
+
+    /* =============================================
+       ヒント・警告ボックス
+       ============================================= */
+    .tip-box {
+      background: var(--color-primary-light);
+      border-left: 4px solid var(--color-primary);
+      border-radius: 0 12px 12px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 0.875rem;
+      color: var(--color-gray-700);
+      line-height: 1.8;
+    }
+
+    .tip-box strong {
+      color: var(--color-primary);
+    }
+
+    .warning-box {
+      background: var(--color-warning-light);
+      border-left: 4px solid var(--color-warning);
+      border-radius: 0 12px 12px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 0.875rem;
+      color: var(--color-gray-700);
+      line-height: 1.8;
+    }
+
+    .warning-box strong {
+      color: #b45309;
+    }
+
+    /* =============================================
+       ステップ
+       ============================================= */
+    .guide-steps {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 44px;
+    }
+
+    .guide-steps::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 20px;
+      bottom: 20px;
+      width: 2px;
+      background: var(--color-gray-200);
+    }
+
+    .guide-step {
+      position: relative;
+      padding: 16px 0;
+    }
+
+    .guide-step-number {
+      position: absolute;
+      left: -44px;
+      top: 16px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .guide-step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 6px;
+    }
+
+    .guide-step p {
+      font-size: 0.9375rem;
+      color: var(--color-gray-600);
+      line-height: 1.9;
+    }
+
+    /* =============================================
+       FAQ
+       ============================================= */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .faq-item {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+
+    .faq-item dt {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .faq-item dt::before {
+      content: 'Q';
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--color-primary);
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .faq-item dd {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+      line-height: 1.9;
+      padding-left: 32px;
+    }
+
+    /* =============================================
+       トップに戻る
+       ============================================= */
+    .back-to-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--color-primary);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: 28px;
+    }
+
+    .back-to-top:hover {
+      text-decoration: underline;
+    }
+
+    /* =============================================
+       フッター
+       ============================================= */
+    .site-footer {
+      background: var(--color-gray-900);
+      color: var(--color-gray-400);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.8125rem;
+      margin-top: auto;
+    }
+
+    /* =============================================
+       レスポンシブ
+       ============================================= */
+    @media (min-width: 640px) {
+      .guide-header {
+        padding: 64px 32px 56px;
+      }
+
+      .guide-header h1 {
+        font-size: 2rem;
+      }
+
+      .section {
+        padding: 80px 0;
+      }
+
+      .section-header h2 {
+        font-size: 1.75rem;
+      }
+
+      .toc {
+        padding: 32px 40px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 960px;
+      }
+
+      .section {
+        padding: 96px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       ヘッダー
+       ============================================= -->
+  <div class="guide-header" id="top">
+    <h1>使い方ガイド</h1>
+    <p>ピッキング練習トレーナーの各機能を詳しく解説します</p>
+    <div class="guide-nav-links">
+      <a href="about.html">紹介ページ</a>
+      <a href="index.html">アプリを開く</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       目次
+       ============================================= -->
+  <div class="section">
+    <div class="container">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#guide-overview"><span class="toc-number">1</span>はじめに</a></li>
+          <li><a href="#guide-users"><span class="toc-number">2</span>ユーザー管理</a></li>
+          <li><a href="#guide-products"><span class="toc-number">3</span>商品登録</a></li>
+          <li><a href="#guide-practice"><span class="toc-number">4</span>練習の流れ</a></li>
+          <li><a href="#guide-results"><span class="toc-number">5</span>結果と履歴</a></li>
+          <li><a href="#guide-stock"><span class="toc-number">6</span>在庫管理</a></li>
+          <li><a href="#guide-data"><span class="toc-number">7</span>データ管理</a></li>
+          <li><a href="#guide-faq"><span class="toc-number">8</span>よくある質問</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       1. はじめに
+       ============================================= -->
+  <div class="section section-bg" id="guide-overview">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Overview</div>
+        <h2>はじめに</h2>
+      </div>
+      <div class="guide-text">
+        <p>
+          ピッキング練習トレーナーは、倉庫での商品ピッキング作業を模擬的に練習できるWebアプリです。
+          身近にあるペットボトルや文房具などを商品として登録し、教室や自宅の棚を倉庫に見立てて練習できます。
+        </p>
+        <p>
+          練習は以下の流れで進みます。
+        </p>
+        <ol>
+          <li>ユーザーを作成してログイン</li>
+          <li>商品を登録する</li>
+          <li>伝票数・伝票1枚の商品数を設定して練習を開始</li>
+          <li>伝票に従って商品を集める（ピッキング）</li>
+          <li>バーコードスキャンで検品</li>
+          <li>スコアと結果を確認</li>
+        </ol>
+
+        <h3>動作環境</h3>
+        <ul>
+          <li><strong>ブラウザ</strong>: Chrome / Edge / Safari / Firefox（最新版推奨）</li>
+          <li><strong>カメラ</strong>: バーコード検品・商品登録時に使用（任意）</li>
+          <li><strong>データ保存</strong>: ブラウザの LocalStorage に保存されます</li>
+        </ul>
+        <div class="tip-box">
+          <strong>ヒント:</strong> PC・タブレット・スマートフォンのいずれでも利用できます。カメラがなくても手動チェックで練習可能です。
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       2. ユーザー管理
+       ============================================= -->
+  <div class="section" id="guide-users">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">User Management</div>
+        <h2>ユーザー管理</h2>
+      </div>
+      <div class="guide-text">
+        <h3>ユーザーを作成する</h3>
+        <p>
+          アプリを開くと最初にユーザー選択画面が表示されます。「新しいユーザーを作成」欄に名前を入力して作成ボタンを押してください。
+        </p>
+
+        <h3>ユーザーを切り替える</h3>
+        <p>
+          ホーム画面の「ユーザーを切り替える」ボタンからユーザー選択画面に戻れます。
+          一覧からユーザーをタップするとログインできます。
+        </p>
+
+        <div class="tip-box">
+          <strong>ヒント:</strong> 1台の端末を複数人で共有できます。ユーザーごとに練習履歴や成績が独立して管理されます。
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       3. 商品登録
+       ============================================= -->
+  <div class="section section-bg" id="guide-products">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Product Registration</div>
+        <h2>商品登録</h2>
+      </div>
+      <div class="guide-text">
+        <p>
+          練習を始めるには、まず商品を登録する必要があります。2つの方法があります。
+        </p>
+
+        <h3>1. 手動で入力</h3>
+        <p>
+          「追加」タブから商品コード・商品名・在庫数を入力して登録します。
+          商品コードはバーコード番号でも、自分で決めた任意のコードでも構いません。
+        </p>
+
+        <h3>2. バーコードスキャンで登録</h3>
+        <p>
+          「追加」タブのカメラボタンを押すと、商品のバーコードをカメラで読み取れます。
+          読み取ったコードが自動入力されるので、商品名を入力して登録してください。
+        </p>
+        <div class="warning-box">
+          <strong>注意:</strong> カメラ機能を使用するにはブラウザのカメラアクセス許可が必要です。許可を求めるダイアログが表示されたら「許可」を選択してください。
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       4. 練習の流れ
+       ============================================= -->
+  <div class="section" id="guide-practice">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Practice Flow</div>
+        <h2>練習の流れ</h2>
+      </div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-step-number">1</div>
+          <div>
+            <h3>練習を設定する</h3>
+            <p>
+              ホーム画面で「伝票数」と「伝票1枚の商品数」を設定します。
+              伝票数は1枚・3枚・5枚・7枚・10枚から選べます。
+              商品数は5品・10品・15品・20品・25品から選べます。
+            </p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-number">2</div>
+          <div>
+            <h3>伝票が自動生成される</h3>
+            <p>
+              「練習を開始」をタップすると、登録済みの商品からランダムに選ばれた伝票が自動生成されます。
+              各伝票には商品名・商品コード・数量が記載されています。
+            </p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-number">3</div>
+          <div>
+            <h3>ピッキング作業</h3>
+            <p>
+              伝票の指示に従って、棚から商品を集めます。
+              集めた商品はタップしてチェックを付けてください。
+              すべてチェックしなくても「検品に進む」ボタンから次のステップに移れます。
+            </p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-number">4</div>
+          <div>
+            <h3>検品する</h3>
+            <p>
+              集めた商品のバーコードをカメラでスキャンして検品します。
+              スキャンすると該当する商品に自動でチェックが付きます。
+              カメラが使えない場合は「スキップして結果へ」から結果画面に進めます。
+            </p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-number">5</div>
+          <div>
+            <h3>結果を確認する</h3>
+            <p>
+              練習が完了すると、スコア（正解率）・正解数・所要時間が表示されます。
+              伝票ごとの達成率や、間違えた商品の詳細も確認できます。
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="guide-text" style="margin-top: 24px;">
+        <div class="tip-box">
+          <strong>ヒント:</strong> 最初は伝票1枚・商品数を少なめにして始めて、慣れてきたら徐々に増やしていくのがおすすめです。
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       5. 結果と履歴
+       ============================================= -->
+  <div class="section section-bg" id="guide-results">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Results &amp; History</div>
+        <h2>結果と履歴</h2>
+      </div>
+      <div class="guide-text">
+        <h3>結果画面</h3>
+        <p>
+          練習終了後に表示される結果画面では、以下の情報を確認できます。
+        </p>
+        <ul>
+          <li><strong>スコア</strong>: 正解率を円形グラフで表示（100点満点）</li>
+          <li><strong>伝票数・正解数</strong>: 全体の達成状況</li>
+          <li><strong>所要時間</strong>: 練習にかかった時間</li>
+          <li><strong>伝票ごとの達成率</strong>: 各伝票の正解率をバーグラフで表示</li>
+        </ul>
+
+        <h3>振り返り機能</h3>
+        <p>
+          結果画面の「振り返り」を開くと、各伝票の商品ごとに正解・未ピックの詳細を確認できます。
+          何を間違えたかを把握して、次の練習に活かしましょう。
+        </p>
+
+        <h3>練習履歴</h3>
+        <p>
+          ホーム画面の「練習履歴を見る」から過去の練習結果を一覧で確認できます。
+        </p>
+        <ul>
+          <li><strong>統計サマリー</strong>: 練習回数・平均スコア・最高スコア</li>
+          <li><strong>スコア推移グラフ</strong>: 直近の練習結果をグラフで可視化</li>
+          <li><strong>各回の詳細</strong>: タップすると伝票ごとの正解状況を展開表示</li>
+        </ul>
+
+        <div class="tip-box">
+          <strong>スコアの目安:</strong>
+          80点以上 = パーフェクト、60〜79点 = 素晴らしい、40〜59点 = よくできました、39点以下 = もう少し
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       6. 在庫管理
+       ============================================= -->
+  <div class="section" id="guide-stock">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Stock Management</div>
+        <h2>在庫管理</h2>
+      </div>
+      <div class="guide-text">
+        <p>
+          商品管理画面の一覧タブで、各商品の在庫数を「＋」「−」ボタンで調整できます。
+        </p>
+        <p>
+          在庫が0になった商品は練習の伝票生成から自動的に除外されます。
+          手元にない商品を在庫0に設定しておくと、実際に手元にある商品だけで練習できます。
+        </p>
+        <div class="tip-box">
+          <strong>ヒント:</strong> 実際に手元にある物品の数に合わせて在庫を設定すると、より実践的な練習ができます。
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       7. データ管理
+       ============================================= -->
+  <div class="section section-bg" id="guide-data">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Data Management</div>
+        <h2>データ管理</h2>
+      </div>
+      <div class="guide-text">
+        <h3>エクスポート（データの書き出し）</h3>
+        <p>
+          商品管理画面の「エクスポート」ボタンを押すと、ユーザー情報・商品データ・練習履歴をまとめてJSON形式のファイルとして保存できます。
+          データのバックアップや端末移行の際にご利用ください。
+        </p>
+
+        <h3>インポート（データの読み込み）</h3>
+        <p>
+          「インポート」ボタンからエクスポートしたJSONファイルを読み込むと、データを復元できます。
+        </p>
+
+        <h3>全データ削除</h3>
+        <p>
+          設定画面の「すべてのデータを削除」から、アプリのすべてのデータを削除できます。
+          確認ダイアログが2回表示され、両方とも承認すると削除が実行されます。
+        </p>
+        <div class="warning-box">
+          <strong>注意:</strong> 全データ削除は取り消しできません。削除前にエクスポートでバックアップを取ることをおすすめします。
+        </div>
+        <div class="warning-box">
+          <strong>注意:</strong> データはブラウザのLocalStorageに保存されています。ブラウザのデータを消去すると練習履歴もリセットされますのでご注意ください。
+        </div>
+      </div>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       8. よくある質問
+       ============================================= -->
+  <div class="section" id="guide-faq">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">FAQ</div>
+        <h2>よくある質問</h2>
+      </div>
+      <dl class="faq-list">
+        <div class="faq-item">
+          <dt>別の端末でデータを引き継げますか？</dt>
+          <dd>
+            エクスポート機能でデータファイルを保存し、別の端末のアプリでインポートすることでデータを移行できます。
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>バーコードが読み取れません</dt>
+          <dd>
+            カメラのアクセス許可が有効になっているか確認してください。
+            また、バーコードに十分な明るさがあること、カメラとバーコードの距離が適切であることをご確認ください。
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>練習を始めようとしたら「商品が不足しています」と表示されました</dt>
+          <dd>
+            練習に必要な商品数が登録数より多い場合に表示されます。
+            商品管理画面から商品を追加するか、伝票1枚の商品数を減らしてください。
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>データが消えてしまいました</dt>
+          <dd>
+            ブラウザのキャッシュ・データを消去すると、LocalStorageに保存されている練習データも削除されます。
+            定期的にエクスポート機能でバックアップを取ることをおすすめします。
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>スマートフォンでも使えますか？</dt>
+          <dd>
+            Chrome・Safari・Edge・Firefoxなどのモダンブラウザに対応しています。
+            スマートフォン・タブレット・PCのいずれからでもご利用いただけます。
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>カメラなしでも練習できますか？</dt>
+          <dd>
+            はい。検品ステップでは「スキップして結果へ」を選ぶことで、カメラなしでも練習を完了できます。
+            商品登録も手動入力で行えます。
+          </dd>
+        </div>
+      </dl>
+      <a href="#top" class="back-to-top" style="display:block;text-align:center;margin-top:28px;">目次に戻る</a>
+    </div>
+  </div>
+
+  <!-- =============================================
+       フッター
+       ============================================= -->
+  <footer class="site-footer">
+    ピッキング練習トレーナー
+  </footer>
+
+</body>
+</html>

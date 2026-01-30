@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピッキング練習トレーナー テスト</title>
+  <link rel="stylesheet" href="https://unpkg.com/mocha@10/mocha.css">
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <script src="https://unpkg.com/chai@4/chai.js"></script>
+  <script src="https://unpkg.com/mocha@10/mocha.js"></script>
+  <script>
+    mocha.setup('bdd');
+    const { expect } = chai;
+  </script>
+
+  <!-- テスト対象: メインHTMLからビジネスロジックを window.PickingTrainer に公開する -->
+  <!-- ここではロジック関数を直接定義してテスト（メインHTMLと同じ実装を共有） -->
+  <script>
+    // =============================================
+    // テスト対象の関数群（メインHTMLに実装後、ここは参照に置き換え）
+    // 現時点ではスタブとして空定義し、テストが失敗することを確認する
+    // =============================================
+
+    // --- ロジック関数のロード ---
+    // メインHTMLの window.PickingTrainer から読み込む方式を採用
+    // テスト実行時は index.html を同じディレクトリに配置すること
+
+    // iframe でメインHTMLを読み込み、ロジック関数を取得
+    let PT = null; // PickingTrainer namespace
+
+    function loadPickingTrainer() {
+      return new Promise((resolve, reject) => {
+        // まず直接 window.PickingTrainer があるか確認
+        if (window.PickingTrainer) {
+          PT = window.PickingTrainer;
+          resolve(PT);
+          return;
+        }
+
+        // script タグで外部JSを読み込む
+        const script = document.createElement('script');
+        script.src = 'picking-trainer-logic.js';
+        script.onload = () => {
+          PT = window.PickingTrainer;
+          if (PT) {
+            resolve(PT);
+          } else {
+            reject(new Error('PickingTrainer が見つかりません'));
+          }
+        };
+        script.onerror = () => {
+          reject(new Error('picking-trainer-logic.js の読み込みに失敗しました'));
+        };
+        document.head.appendChild(script);
+      });
+    }
+  </script>
+
+  <!-- テストスイート -->
+  <script>
+    // =============================================
+    // Phase 1-1: ユーティリティ関数のテスト
+    // =============================================
+    describe('formatDuration', () => {
+      it('秒のみの場合 "30秒" を返す', () => {
+        expect(PT.formatDuration(30000)).to.equal('30秒');
+      });
+
+      it('分+秒の場合 "2分30秒" を返す', () => {
+        expect(PT.formatDuration(150000)).to.equal('2分30秒');
+      });
+
+      it('0秒の場合 "0秒" を返す', () => {
+        expect(PT.formatDuration(0)).to.equal('0秒');
+      });
+
+      it('ちょうど1分の場合 "1分0秒" を返す', () => {
+        expect(PT.formatDuration(60000)).to.equal('1分0秒');
+      });
+    });
+
+    describe('formatDate', () => {
+      it('ISO文字列を "YYYY/M/D H:MM" 形式にフォーマットする', () => {
+        const result = PT.formatDate('2026-01-28T14:05:00.000Z');
+        // タイムゾーンによる差があるため、形式のパターンだけ確認
+        expect(result).to.match(/^\d{4}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{2}$/);
+      });
+    });
+
+    describe('escapeHtml', () => {
+      it('HTMLタグをエスケープする', () => {
+        expect(PT.escapeHtml('<script>alert("xss")</script>')).to.not.include('<script>');
+      });
+
+      it('&をエスケープする', () => {
+        expect(PT.escapeHtml('A&B')).to.include('&amp;');
+      });
+
+      it('通常の文字列はそのまま返す', () => {
+        expect(PT.escapeHtml('Hello World')).to.equal('Hello World');
+      });
+
+      it('空文字列はそのまま返す', () => {
+        expect(PT.escapeHtml('')).to.equal('');
+      });
+    });
+
+    // =============================================
+    // Phase 1-2: スコア計算のテスト
+    // =============================================
+    describe('getBestScore', () => {
+      it('該当モードの最高スコアを返す', () => {
+        const history = [
+          { userId: 'u1', mode: 'normal', score: 80 },
+          { userId: 'u1', mode: 'normal', score: 95 },
+          { userId: 'u1', mode: 'normal', score: 70 },
+        ];
+        expect(PT.getBestScore(history, 'u1', 'normal')).to.equal(95);
+      });
+
+      it('該当モードの履歴がない場合 null を返す', () => {
+        const history = [
+          { userId: 'u1', mode: 'normal', score: 80 },
+        ];
+        expect(PT.getBestScore(history, 'u1', 'timeAttack')).to.be.null;
+      });
+
+      it('他ユーザーの履歴は含まない', () => {
+        const history = [
+          { userId: 'u1', mode: 'normal', score: 80 },
+          { userId: 'u2', mode: 'normal', score: 100 },
+        ];
+        expect(PT.getBestScore(history, 'u1', 'normal')).to.equal(80);
+      });
+
+      it('タイムアタックで同一制限時間のベストのみ返す', () => {
+        const history = [
+          { userId: 'u1', mode: 'timeAttack', timeLimit: 60, totalAnswered: 10 },
+          { userId: 'u1', mode: 'timeAttack', timeLimit: 60, totalAnswered: 15 },
+          { userId: 'u1', mode: 'timeAttack', timeLimit: 90, totalAnswered: 20 },
+        ];
+        expect(PT.getBestScore(history, 'u1', 'timeAttack', { timeLimit: 60 })).to.equal(15);
+      });
+
+      it('空の履歴で null を返す', () => {
+        expect(PT.getBestScore([], 'u1', 'normal')).to.be.null;
+      });
+    });
+
+    // =============================================
+    // Phase 1-3: データ管理のテスト
+    // =============================================
+    describe('migrateHistory', () => {
+      it('モード情報なしの履歴に "normal" が付与される', () => {
+        const history = [{ id: '1', score: 80 }];
+        const migrated = PT.migrateHistory(history);
+        expect(migrated[0].mode).to.equal('normal');
+      });
+
+      it('モード情報ありの履歴はそのまま', () => {
+        const history = [{ id: '1', score: 80, mode: 'timeAttack' }];
+        const migrated = PT.migrateHistory(history);
+        expect(migrated[0].mode).to.equal('timeAttack');
+      });
+
+      it('空配列の場合、空配列を返す', () => {
+        expect(PT.migrateHistory([])).to.deep.equal([]);
+      });
+
+      it('元の配列を変更しない', () => {
+        const history = [{ id: '1', score: 80 }];
+        const migrated = PT.migrateHistory(history);
+        expect(history[0].mode).to.be.undefined;
+      });
+    });
+
+    describe('trimHistory', () => {
+      it('500件以下はそのまま返す', () => {
+        const history = Array.from({ length: 100 }, (_, i) => ({ id: String(i) }));
+        expect(PT.trimHistory(history)).to.have.length(100);
+      });
+
+      it('500件を超えた場合、最新500件を返す', () => {
+        const history = Array.from({ length: 600 }, (_, i) => ({ id: String(i) }));
+        const trimmed = PT.trimHistory(history);
+        expect(trimmed).to.have.length(500);
+        // 最新（末尾）の500件が残る
+        expect(trimmed[0].id).to.equal('100');
+        expect(trimmed[499].id).to.equal('599');
+      });
+    });
+
+    // =============================================
+    // Phase 1-4: タスク生成のテスト
+    // =============================================
+    describe('generateRandomTask', () => {
+      const products = [
+        { code: 'P1', name: 'Product 1' },
+        { code: 'P2', name: 'Product 2' },
+        { code: 'P3', name: 'Product 3' },
+      ];
+
+      it('商品プールからタスクを生成できる', () => {
+        const task = PT.generateRandomTask(products);
+        expect(task).to.have.property('product');
+        expect(task).to.have.property('quantity');
+        expect(task).to.have.property('completed', false);
+        expect(task).to.have.property('found', null);
+      });
+
+      it('数量が 1〜3 の範囲', () => {
+        for (let i = 0; i < 50; i++) {
+          const task = PT.generateRandomTask(products);
+          expect(task.quantity).to.be.at.least(1);
+          expect(task.quantity).to.be.at.most(3);
+        }
+      });
+
+      it('生成されたタスクの商品がプールに含まれる', () => {
+        for (let i = 0; i < 50; i++) {
+          const task = PT.generateRandomTask(products);
+          const found = products.find(p => p.code === task.product.code);
+          expect(found).to.not.be.undefined;
+        }
+      });
+    });
+
+    describe('generateRandomTasks', () => {
+      const products = [
+        { code: 'P1', name: 'Product 1' },
+        { code: 'P2', name: 'Product 2' },
+        { code: 'P3', name: 'Product 3' },
+      ];
+
+      it('指定数のタスクを生成できる', () => {
+        const tasks = PT.generateRandomTasks(products, 5);
+        expect(tasks).to.have.length(5);
+      });
+
+      it('生成されたタスクが正しい構造を持つ', () => {
+        const tasks = PT.generateRandomTasks(products, 3);
+        tasks.forEach(task => {
+          expect(task).to.have.property('product');
+          expect(task).to.have.property('quantity');
+          expect(task).to.have.property('completed', false);
+          expect(task).to.have.property('found', null);
+          expect(task.product).to.have.property('code');
+          expect(task.product).to.have.property('name');
+        });
+      });
+
+      it('0件指定で空配列を返す', () => {
+        expect(PT.generateRandomTasks(products, 0)).to.have.length(0);
+      });
+    });
+
+    // =============================================
+    // Phase 在庫: migrateProducts のテスト
+    // =============================================
+    describe('migrateProducts', () => {
+      it('stockなし商品に stock: 99 が付与される', () => {
+        const products = [{ code: 'P1', name: 'Product 1' }];
+        const migrated = PT.migrateProducts(products);
+        expect(migrated[0].stock).to.equal(99);
+      });
+
+      it('stock付き商品はそのまま', () => {
+        const products = [{ code: 'P1', name: 'Product 1', stock: 5 }];
+        const migrated = PT.migrateProducts(products);
+        expect(migrated[0].stock).to.equal(5);
+      });
+
+      it('空配列で空配列を返す', () => {
+        expect(PT.migrateProducts([])).to.deep.equal([]);
+      });
+
+      it('元の配列を変更しない', () => {
+        const products = [{ code: 'P1', name: 'Product 1' }];
+        const migrated = PT.migrateProducts(products);
+        expect(products[0].stock).to.be.undefined;
+      });
+    });
+
+    // =============================================
+    // Phase 在庫: generateRandomTask 在庫対応テスト
+    // =============================================
+    describe('generateRandomTask（在庫対応）', () => {
+      it('stock=0 の商品が出題されない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 0 },
+          { code: 'P2', name: 'Product 2', stock: 5 },
+        ];
+        for (let i = 0; i < 50; i++) {
+          const task = PT.generateRandomTask(products);
+          expect(task.product.code).to.equal('P2');
+        }
+      });
+
+      it('出題数量が在庫数以下', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 1 },
+        ];
+        for (let i = 0; i < 50; i++) {
+          const task = PT.generateRandomTask(products);
+          expect(task.quantity).to.be.at.most(task.product.stock);
+        }
+      });
+
+      it('全商品 stock=0 の場合 null を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 0 },
+          { code: 'P2', name: 'Product 2', stock: 0 },
+        ];
+        const task = PT.generateRandomTask(products);
+        expect(task).to.be.null;
+      });
+
+      it('stockフィールドなし商品も出題される（後方互換）', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1' },
+        ];
+        const task = PT.generateRandomTask(products);
+        expect(task).to.not.be.null;
+        expect(task.product.code).to.equal('P1');
+      });
+    });
+
+    // =============================================
+    // Phase 在庫: generateRandomTasks 在庫対応テスト
+    // =============================================
+    describe('generateRandomTasks（在庫対応）', () => {
+      it('stock=0 の商品がタスクに含まれない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 0 },
+          { code: 'P2', name: 'Product 2', stock: 5 },
+        ];
+        const tasks = PT.generateRandomTasks(products, 10);
+        tasks.forEach(task => {
+          expect(task.product.code).to.equal('P2');
+        });
+      });
+
+      it('全商品 stock=0 の場合、空配列を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 0 },
+        ];
+        const tasks = PT.generateRandomTasks(products, 5);
+        expect(tasks).to.have.length(0);
+      });
+    });
+
+    // =============================================
+    // Phase 伝票: generateSlips のテスト
+    // =============================================
+    describe('generateSlips', () => {
+      const products = [
+        { code: 'P1', name: 'Product 1', stock: 10 },
+        { code: 'P2', name: 'Product 2', stock: 10 },
+        { code: 'P3', name: 'Product 3', stock: 10 },
+      ];
+
+      it('指定した伝票数の配列を返す', () => {
+        const slips = PT.generateSlips(products, 3, 2);
+        expect(slips).to.have.length(3);
+      });
+
+      it('各伝票が指定した商品数のタスクを持つ', () => {
+        const slips = PT.generateSlips(products, 2, 3);
+        slips.forEach(slip => {
+          expect(slip.tasks).to.have.length(3);
+        });
+      });
+
+      it('各伝票が正しいプロパティを持つ', () => {
+        const slips = PT.generateSlips(products, 1, 2);
+        const slip = slips[0];
+        expect(slip).to.have.property('slipId');
+        expect(slip).to.have.property('slipNumber', 1);
+        expect(slip).to.have.property('tasks');
+        expect(slip).to.have.property('completed', false);
+      });
+
+      it('slipNumber が1から順に割り振られる', () => {
+        const slips = PT.generateSlips(products, 5, 2);
+        slips.forEach((slip, i) => {
+          expect(slip.slipNumber).to.equal(i + 1);
+        });
+      });
+
+      it('slipId がユニーク', () => {
+        const slips = PT.generateSlips(products, 5, 2);
+        const ids = slips.map(s => s.slipId);
+        const uniqueIds = [...new Set(ids)];
+        expect(uniqueIds).to.have.length(5);
+      });
+
+      it('0枚指定で空配列を返す', () => {
+        const slips = PT.generateSlips(products, 0, 2);
+        expect(slips).to.have.length(0);
+      });
+    });
+
+    // =============================================
+    // Phase 伝票: generateSlips 在庫累積チェックのテスト
+    // =============================================
+    describe('generateSlips（在庫累積チェック）', () => {
+      it('全伝票合計で同一商品の数量が在庫を超えない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 5 },
+          { code: 'P2', name: 'Product 2', stock: 5 },
+        ];
+        for (let trial = 0; trial < 20; trial++) {
+          const slips = PT.generateSlips(products, 3, 3);
+          const totals = {};
+          slips.forEach(slip => {
+            slip.tasks.forEach(task => {
+              const code = task.product.code;
+              totals[code] = (totals[code] || 0) + task.quantity;
+            });
+          });
+          Object.keys(totals).forEach(code => {
+            const product = products.find(p => p.code === code);
+            expect(totals[code]).to.be.at.most(product.stock,
+              `商品 ${code} の合計数量 ${totals[code]} が在庫 ${product.stock} を超えています`);
+          });
+        }
+      });
+
+      it('在庫が少ない場合、タスク数が要求より少なくなる', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 2 },
+        ];
+        const slips = PT.generateSlips(products, 3, 3);
+        const totalQuantity = slips.flatMap(s => s.tasks).reduce((sum, t) => sum + t.quantity, 0);
+        expect(totalQuantity).to.be.at.most(2);
+      });
+
+      it('在庫を使い切ったらそれ以降のタスクが生成されない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 1 },
+        ];
+        const slips = PT.generateSlips(products, 5, 5);
+        const allTasks = slips.flatMap(s => s.tasks);
+        const totalQuantity = allTasks.reduce((sum, t) => sum + t.quantity, 0);
+        expect(totalQuantity).to.equal(1);
+        expect(allTasks).to.have.length(1);
+      });
+
+      it('元の products 配列の stock を変更しない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 5 },
+          { code: 'P2', name: 'Product 2', stock: 3 },
+        ];
+        PT.generateSlips(products, 3, 3);
+        expect(products[0].stock).to.equal(5);
+        expect(products[1].stock).to.equal(3);
+      });
+
+      it('複数商品の在庫がそれぞれ正しく管理される', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 3 },
+          { code: 'P2', name: 'Product 2', stock: 2 },
+        ];
+        for (let trial = 0; trial < 20; trial++) {
+          const slips = PT.generateSlips(products, 2, 3);
+          const totals = {};
+          slips.forEach(slip => {
+            slip.tasks.forEach(task => {
+              const code = task.product.code;
+              totals[code] = (totals[code] || 0) + task.quantity;
+            });
+          });
+          if (totals['P1']) expect(totals['P1']).to.be.at.most(3);
+          if (totals['P2']) expect(totals['P2']).to.be.at.most(2);
+        }
+      });
+    });
+
+    // =============================================
+    // Phase 伝票: 同一伝票内の商品重複防止テスト
+    // =============================================
+    describe('generateSlips（同一伝票内の商品重複防止）', () => {
+      it('同一伝票内で同じ商品コードが複数行に出現しない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 20 },
+          { code: 'P2', name: 'Product 2', stock: 20 },
+          { code: 'P3', name: 'Product 3', stock: 20 },
+        ];
+        for (let trial = 0; trial < 30; trial++) {
+          const slips = PT.generateSlips(products, 3, 3);
+          slips.forEach(slip => {
+            const codes = slip.tasks.map(t => t.product.code);
+            const uniqueCodes = [...new Set(codes)];
+            expect(codes.length).to.equal(uniqueCodes.length,
+              `伝票 ${slip.slipNumber} で商品が重複: [${codes.join(', ')}]`);
+          });
+        }
+      });
+
+      it('商品数が少なくても伝票内で重複しない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 20 },
+          { code: 'P2', name: 'Product 2', stock: 20 },
+        ];
+        for (let trial = 0; trial < 30; trial++) {
+          const slips = PT.generateSlips(products, 2, 2);
+          slips.forEach(slip => {
+            const codes = slip.tasks.map(t => t.product.code);
+            const uniqueCodes = [...new Set(codes)];
+            expect(codes.length).to.equal(uniqueCodes.length,
+              `伝票 ${slip.slipNumber} で商品が重複: [${codes.join(', ')}]`);
+          });
+        }
+      });
+
+      it('商品種類数より多い商品数を要求した場合、種類数分だけ生成される', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 20 },
+          { code: 'P2', name: 'Product 2', stock: 20 },
+        ];
+        // 2種類しかないのに5商品要求
+        const slips = PT.generateSlips(products, 1, 5);
+        expect(slips[0].tasks.length).to.be.at.most(2);
+        const codes = slips[0].tasks.map(t => t.product.code);
+        const uniqueCodes = [...new Set(codes)];
+        expect(codes.length).to.equal(uniqueCodes.length);
+      });
+
+      it('在庫切れ商品は伝票内で選ばれない', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 1 },
+          { code: 'P2', name: 'Product 2', stock: 20 },
+          { code: 'P3', name: 'Product 3', stock: 20 },
+        ];
+        for (let trial = 0; trial < 20; trial++) {
+          const slips = PT.generateSlips(products, 3, 3);
+          slips.forEach(slip => {
+            const codes = slip.tasks.map(t => t.product.code);
+            const uniqueCodes = [...new Set(codes)];
+            expect(codes.length).to.equal(uniqueCodes.length,
+              `伝票 ${slip.slipNumber} で商品が重複: [${codes.join(', ')}]`);
+          });
+        }
+      });
+    });
+
+    // =============================================
+    // Phase 伝票: isAllSlipsCompleted のテスト
+    // =============================================
+    describe('isAllSlipsCompleted', () => {
+      it('全伝票完了で true を返す', () => {
+        const slips = [
+          { slipId: 'slip-0', completed: true, tasks: [] },
+          { slipId: 'slip-1', completed: true, tasks: [] },
+        ];
+        expect(PT.isAllSlipsCompleted(slips)).to.be.true;
+      });
+
+      it('一部未完了で false を返す', () => {
+        const slips = [
+          { slipId: 'slip-0', completed: true, tasks: [] },
+          { slipId: 'slip-1', completed: false, tasks: [] },
+        ];
+        expect(PT.isAllSlipsCompleted(slips)).to.be.false;
+      });
+
+      it('空配列で false を返す', () => {
+        expect(PT.isAllSlipsCompleted([])).to.be.false;
+      });
+
+      it('null で false を返す', () => {
+        expect(PT.isAllSlipsCompleted(null)).to.be.false;
+      });
+    });
+
+    // =============================================
+    // Phase 伝票: getSlipsSummary のテスト
+    // =============================================
+    describe('getSlipsSummary', () => {
+      it('全タスク数を正しく返す', () => {
+        const slips = [
+          { tasks: [
+            { product: {}, quantity: 1, completed: true, found: true },
+            { product: {}, quantity: 1, completed: true, found: false },
+          ]},
+          { tasks: [
+            { product: {}, quantity: 1, completed: true, found: true },
+          ]},
+        ];
+        const summary = PT.getSlipsSummary(slips);
+        expect(summary.totalTasks).to.equal(3);
+      });
+
+      it('正解数を正しく返す', () => {
+        const slips = [
+          { tasks: [
+            { product: {}, quantity: 1, completed: true, found: true },
+            { product: {}, quantity: 1, completed: true, found: false },
+          ]},
+          { tasks: [
+            { product: {}, quantity: 1, completed: true, found: true },
+          ]},
+        ];
+        const summary = PT.getSlipsSummary(slips);
+        expect(summary.correctCount).to.equal(2);
+      });
+
+      it('完了数を正しく返す', () => {
+        const slips = [
+          { tasks: [
+            { product: {}, quantity: 1, completed: true, found: true },
+            { product: {}, quantity: 1, completed: false, found: null },
+          ]},
+        ];
+        const summary = PT.getSlipsSummary(slips);
+        expect(summary.completedTasks).to.equal(1);
+      });
+
+      it('allTasks がフラット化された全タスク配列を返す', () => {
+        const slips = [
+          { tasks: [{ a: 1 }, { a: 2 }] },
+          { tasks: [{ a: 3 }] },
+        ];
+        const summary = PT.getSlipsSummary(slips);
+        expect(summary.allTasks).to.have.length(3);
+      });
+
+      it('空の伝票配列で 0 を返す', () => {
+        const summary = PT.getSlipsSummary([]);
+        expect(summary.totalTasks).to.equal(0);
+        expect(summary.correctCount).to.equal(0);
+      });
+    });
+
+    // =============================================
+    // Phase 伝票: getBestScore で slip モード対応テスト
+    // =============================================
+    describe('getBestScore（伝票モード）', () => {
+      it('slip モードの最高スコアを返す', () => {
+        const history = [
+          { userId: 'u1', mode: 'slip', score: 60 },
+          { userId: 'u1', mode: 'slip', score: 90 },
+          { userId: 'u1', mode: 'normal', score: 100 },
+        ];
+        expect(PT.getBestScore(history, 'u1', 'slip')).to.equal(90);
+      });
+
+      it('slip モードの履歴がない場合 null を返す', () => {
+        const history = [
+          { userId: 'u1', mode: 'normal', score: 80 },
+        ];
+        expect(PT.getBestScore(history, 'u1', 'slip')).to.be.null;
+      });
+    });
+
+  </script>
+
+  <script>
+    // テスト実行
+    loadPickingTrainer()
+      .then(() => {
+        mocha.run();
+      })
+      .catch((err) => {
+        console.error(err);
+        document.getElementById('mocha').innerHTML =
+          `<div style="color:red;padding:20px;">
+            <h2>テスト対象の読み込みに失敗しました</h2>
+            <p>${err.message}</p>
+            <p>picking-trainer-logic.js が同じディレクトリに存在するか確認してください。</p>
+          </div>`;
+      });
+  </script>
+</body>
+</html>

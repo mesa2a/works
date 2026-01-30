@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピッキング練習トレーナー - 専用設備不要のピッキング訓練アプリ</title>
+  <style>
+    :root {
+      --color-primary: #4f6ef7;
+      --color-primary-dark: #3b5de7;
+      --color-primary-light: #eef2ff;
+      --color-primary-rgb: 79, 110, 247;
+      --color-gray-50: #f8fafc;
+      --color-gray-100: #f1f5f9;
+      --color-gray-200: #e2e8f0;
+      --color-gray-300: #cbd5e1;
+      --color-gray-400: #94a3b8;
+      --color-gray-500: #64748b;
+      --color-gray-600: #475569;
+      --color-gray-700: #334155;
+      --color-gray-800: #1e293b;
+      --color-gray-900: #0f172a;
+      --color-white: #ffffff;
+      --color-success: #22c55e;
+      --color-success-light: #f0fdf4;
+      --color-warning: #f59e0b;
+      --color-warning-light: #fffbeb;
+      --color-danger: #ef4444;
+      --color-danger-light: #fef2f2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--color-white);
+      color: var(--color-gray-800);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      opacity: 1;
+    }
+
+    /* FOUC防止: CSSが適用されるまでコンテンツを非表示にする */
+    html:not([data-ready]) body {
+      opacity: 0;
+    }
+
+    /* =============================================
+       ヒーロー
+       ============================================= */
+    .hero {
+      background: linear-gradient(135deg, #4338ca 0%, #4f6ef7 40%, #6366f1 65%, #8b5cf6 100%);
+      color: var(--color-white);
+      text-align: center;
+      padding: 88px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 装飾: グロー円 */
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+      top: -200px;
+      right: -150px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    /* 装飾: ドットパターン */
+    .hero-dots {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* 装飾: フローティング図形 */
+    .hero-shape {
+      position: absolute;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+
+    .hero-shape-1 {
+      width: 64px;
+      height: 64px;
+      top: 15%;
+      left: 8%;
+      transform: rotate(15deg);
+    }
+
+    .hero-shape-2 {
+      width: 40px;
+      height: 40px;
+      top: 25%;
+      right: 12%;
+      transform: rotate(-20deg);
+      border-radius: 50%;
+    }
+
+    .hero-shape-3 {
+      width: 80px;
+      height: 80px;
+      bottom: 15%;
+      right: 8%;
+      transform: rotate(30deg);
+      border-radius: 20px;
+    }
+
+    .hero-shape-4 {
+      width: 48px;
+      height: 48px;
+      bottom: 20%;
+      left: 12%;
+      transform: rotate(-10deg);
+      border-radius: 50%;
+      border-width: 1.5px;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--color-white);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 24px;
+      margin-bottom: 28px;
+      letter-spacing: 0.03em;
+    }
+
+    .hero-badge .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 8px #34d399;
+    }
+
+    .hero h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 20px;
+    }
+
+    .hero-lead {
+      font-size: 1.125rem;
+      opacity: 0.92;
+      max-width: 560px;
+      margin: 0 auto 12px;
+      line-height: 1.7;
+    }
+
+    .hero-sub {
+      font-size: 0.9375rem;
+      opacity: 0.65;
+      max-width: 480px;
+      margin: 0 auto 44px;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--color-white);
+      color: var(--color-primary);
+      padding: 16px 44px;
+      border-radius: 14px;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 40px rgba(255,255,255,0.1);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 60px rgba(255,255,255,0.12);
+    }
+
+    .hero-cta .cta-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--color-primary-light);
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .hero-cta:hover .cta-arrow {
+      transform: translateX(3px);
+    }
+
+    .hero-note {
+      margin-top: 20px;
+      font-size: 0.8125rem;
+      opacity: 0.55;
+    }
+
+    /* =============================================
+       ウェーブディバイダー
+       ============================================= */
+    /* =============================================
+       数字ハイライトバー
+       ============================================= */
+    .stats-bar {
+      background: var(--color-gray-900);
+      color: var(--color-white);
+      padding: 48px 24px;
+      position: relative;
+    }
+
+    .stats-grid {
+      max-width: 880px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+
+    .stat-item {
+      position: relative;
+    }
+
+    .stat-item .stat-number {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #818cf8, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-item .stat-number span {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .stat-item .stat-label {
+      font-size: 0.8125rem;
+      color: var(--color-gray-400);
+      margin-top: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    /* 区切りライン */
+    .stats-grid .stat-item + .stat-item::before {
+      display: none;
+    }
+
+    /* =============================================
+       コンテナ
+       ============================================= */
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* =============================================
+       セクション共通
+       ============================================= */
+    .section {
+      padding: 72px 0;
+      position: relative;
+    }
+
+    .section-bg {
+      background: var(--color-gray-50);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .section-header .section-label {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+      padding: 4px 14px;
+      background: var(--color-primary-light);
+      border-radius: 6px;
+    }
+
+    .section-header h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      font-size: 1rem;
+      color: var(--color-gray-500);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* =============================================
+       課題→解決
+       ============================================= */
+    .challenge-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .challenge-col h3 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding: 6px 16px;
+      border-radius: 20px;
+    }
+
+    .challenge-col h3 .lp-icon {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .challenge-col.problems h3 {
+      background: var(--color-danger-light);
+      color: var(--color-danger);
+    }
+
+    .challenge-col.problems h3 .lp-icon {
+      stroke: var(--color-danger);
+    }
+
+    .challenge-col.solutions h3 {
+      background: var(--color-success-light);
+      color: var(--color-success);
+    }
+
+    .challenge-col.solutions h3 .lp-icon {
+      stroke: var(--color-success);
+    }
+
+    .challenge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .challenge-item {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 14px;
+      padding: 20px 24px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .challenge-item:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.12);
+    }
+
+    .problems .challenge-item {
+      border-left: 3px solid var(--color-danger);
+    }
+
+    .solutions .challenge-item {
+      border-left: 3px solid var(--color-success);
+    }
+
+    .section-bg .challenge-item {
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .challenge-item .item-icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .challenge-item .item-icon .lp-icon {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .problems .challenge-item .item-icon {
+      background: var(--color-danger-light);
+    }
+
+    .problems .challenge-item .item-icon .lp-icon {
+      stroke: var(--color-danger);
+    }
+
+    .solutions .challenge-item .item-icon {
+      background: var(--color-success-light);
+    }
+
+    .solutions .challenge-item .item-icon .lp-icon {
+      stroke: var(--color-success);
+    }
+
+    .challenge-item .item-text strong {
+      display: block;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 2px;
+    }
+
+    .challenge-item .item-text p {
+      font-size: 0.8125rem;
+      color: var(--color-gray-500);
+      line-height: 1.7;
+    }
+
+    /* =============================================
+       概要ブロック
+       ============================================= */
+    .overview-block {
+      background: linear-gradient(180deg, rgba(79, 110, 247, 0.06) 0%, rgba(139, 92, 246, 0.02) 40%, var(--color-white) 100%);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 20px;
+      padding: 44px 36px;
+      max-width: 720px;
+      margin: 0 auto;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    }
+
+    .overview-block p {
+      font-size: 0.9375rem;
+      color: var(--color-gray-600);
+      line-height: 2;
+    }
+
+    .overview-block p + p {
+      margin-top: 14px;
+    }
+
+    /* =============================================
+       特徴カード
+       ============================================= */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.12);
+    }
+
+    .feature-icon {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-primary-light), #dbeafe);
+      border-radius: 14px;
+      position: relative;
+    }
+
+    .feature-icon .lp-icon {
+      width: 26px;
+      height: 26px;
+      stroke: var(--color-primary);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .feature-content h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 6px;
+    }
+
+    .feature-content p {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      line-height: 1.7;
+    }
+
+    /* =============================================
+       はじめにステップ
+       ============================================= */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 48px;
+      bottom: 48px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--color-primary), #8b5cf6, var(--color-primary));
+      opacity: 0.25;
+    }
+
+    .step {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      padding: 18px 0;
+      position: relative;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f6ef7, #6366f1);
+      color: var(--color-white);
+      font-weight: 800;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.35);
+    }
+
+    .step-number::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 2px solid rgba(var(--color-primary-rgb), 0.15);
+    }
+
+    .step-content {
+      padding-top: 10px;
+    }
+
+    .step-content h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      line-height: 1.7;
+    }
+
+    /* =============================================
+       利用シーン
+       ============================================= */
+    .scene-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .scene-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .scene-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.12);
+    }
+
+    .scene-card .scene-icon {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-primary-light), #dbeafe);
+      border-radius: 18px;
+      margin: 0 auto 18px;
+    }
+
+    .scene-card .scene-icon .lp-icon {
+      width: 30px;
+      height: 30px;
+      stroke: var(--color-primary);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .scene-card h3 {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 8px;
+    }
+
+    .scene-card p {
+      font-size: 0.8125rem;
+      color: var(--color-gray-500);
+      line-height: 1.7;
+    }
+
+    /* =============================================
+       動作環境・プライバシー
+       ============================================= */
+    .env-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .env-item {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 14px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .env-item:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.12);
+    }
+
+    .env-item .icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--color-primary-light), #dbeafe);
+      border-radius: 12px;
+    }
+
+    .env-item .icon .lp-icon {
+      width: 20px;
+      height: 20px;
+      stroke: var(--color-primary);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .env-item .text {
+      font-size: 0.9375rem;
+      color: var(--color-gray-700);
+      font-weight: 600;
+    }
+
+    .env-item .note {
+      font-size: 0.8125rem;
+      color: var(--color-gray-400);
+    }
+
+    /* =============================================
+       中間CTA
+       ============================================= */
+    .mid-cta {
+      text-align: center;
+      padding: 64px 24px;
+      background: linear-gradient(135deg, #4338ca 0%, #4f6ef7 40%, #6366f1 65%, #8b5cf6 100%);
+      color: var(--color-white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mid-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+
+    .mid-cta::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      top: -250px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .mid-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mid-cta p {
+      font-size: 0.9375rem;
+      opacity: 0.85;
+      margin-bottom: 32px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mid-cta .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--color-white);
+      color: var(--color-primary);
+      padding: 14px 36px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mid-cta .cta-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    }
+
+    /* =============================================
+       概要テキスト（プライバシー等）
+       ============================================= */
+    .overview-text {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .overview-text p {
+      font-size: 0.9375rem;
+      color: var(--color-gray-600);
+      line-height: 2;
+    }
+
+    .overview-text p + p {
+      margin-top: 12px;
+    }
+
+    /* =============================================
+       フッター
+       ============================================= */
+    .site-footer {
+      background: var(--color-gray-900);
+      color: var(--color-gray-400);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.8125rem;
+      margin-top: auto;
+    }
+
+    /* =============================================
+       レスポンシブ
+       ============================================= */
+    @media (min-width: 640px) {
+      .hero {
+        padding: 108px 32px 96px;
+      }
+
+      .hero h1 {
+        font-size: 2.75rem;
+      }
+
+      .hero-lead {
+        font-size: 1.1875rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .stat-item .stat-number {
+        font-size: 2.75rem;
+      }
+
+      .features {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .env-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .challenge-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .scene-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .section {
+        padding: 88px 0;
+      }
+
+      .section-header h2 {
+        font-size: 2rem;
+      }
+
+      .mid-cta {
+        padding: 72px 32px;
+      }
+
+      .mid-cta h2 {
+        font-size: 1.75rem;
+      }
+
+    }
+
+    @media (min-width: 1024px) {
+      .hero {
+        padding: 128px 32px 112px;
+      }
+
+      .hero h1 {
+        font-size: 3.25rem;
+      }
+
+      .container {
+        max-width: 960px;
+      }
+
+      .section {
+        padding: 104px 0;
+      }
+
+      .section-header h2 {
+        font-size: 2.25rem;
+      }
+
+      .features {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .scene-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .overview-block {
+        padding: 52px 48px;
+      }
+
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       ヒーロー
+       ============================================= -->
+  <div class="hero">
+    <div class="hero-dots"></div>
+    <div class="hero-shape hero-shape-1"></div>
+    <div class="hero-shape hero-shape-2"></div>
+    <div class="hero-shape hero-shape-3"></div>
+    <div class="hero-shape hero-shape-4"></div>
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        無料 / Excel不要 / ブラウザだけで動作
+      </div>
+      <h1>ピッキング練習トレーナー</h1>
+      <p class="hero-lead">専用設備なしで、いつでもどこでも<br>ピッキング作業の訓練ができるWebアプリ</p>
+      <p class="hero-sub">身近なペットボトルや文房具を商品に見立てて、実務に近い形で練習できます</p>
+      <a href="index.html" class="hero-cta">
+        今すぐ無料で始める
+        <span class="cta-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </span>
+      </a>
+      <p class="hero-note">アカウント登録不要 ・ データは端末内に保存</p>
+    </div>
+  </div>
+
+  <!-- =============================================
+       数字ハイライトバー
+       ============================================= -->
+  <div class="stats-bar">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">0<span>円</span></div>
+        <div class="stat-label">導入・運用コスト</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">2<span>種類</span></div>
+        <div class="stat-label">商品登録方法</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">5<span>STEP</span></div>
+        <div class="stat-label">かんたん操作</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100<span>%</span></div>
+        <div class="stat-label">ブラウザ完結</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       課題と解決策
+       ============================================= -->
+  <div class="section section-bg">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Problem / Solution</div>
+        <h2>こんな課題を解決します</h2>
+        <p>物流業界の人材育成における課題をテクノロジーでサポート</p>
+      </div>
+
+      <div class="challenge-row">
+        <div class="challenge-col problems">
+          <h3>
+            <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            現場の課題
+          </h3>
+          <div class="challenge-list">
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>専用訓練室の制約</strong>
+                <p>倉庫を模した訓練室の設備維持にコストがかかり、予約や移動にも時間を要します。</p>
+              </div>
+            </div>
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>自宅で復習できない</strong>
+                <p>訓練施設でしか練習ができず、受講生が自宅で繰り返し練習する手段がありません。</p>
+              </div>
+            </div>
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>習熟度にばらつき</strong>
+                <p>受講生ごとの練習量や進捗が把握しにくく、個別指導が難しい状況です。</p>
+              </div>
+            </div>
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>PCやソフトの環境に依存</strong>
+                <p>商品リストの準備にExcelが必要だと、Excelが入っていないPCやスマホでは使えません。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-col solutions">
+          <h3>
+            <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            このアプリの解決策
+          </h3>
+          <div class="challenge-list">
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>身近な物で練習可能</strong>
+                <p>ペットボトルや文房具を商品として登録し、教室や自宅の棚を倉庫に見立てて練習できます。</p>
+              </div>
+            </div>
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>いつでもどこでも</strong>
+                <p>スマートフォンがあれば教室でも自宅でも練習可能。十分な練習量を確保できます。</p>
+              </div>
+            </div>
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>進捗を可視化</strong>
+                <p>練習履歴がユーザーごとに自動記録され、成長の推移をいつでも振り返れます。</p>
+              </div>
+            </div>
+            <div class="challenge-item">
+              <div class="item-icon">
+                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <div class="item-text">
+                <strong>Excel・専用ソフト一切不要</strong>
+                <p>ブラウザだけで完結。Excelが入っていないPCやスマホからでもすぐに使えます。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       このアプリについて
+       ============================================= -->
+  <div class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">About</div>
+        <h2>このアプリについて</h2>
+        <p>実務に近い練習を、手軽に</p>
+      </div>
+      <div class="overview-block">
+        <p>
+          ピッキング練習トレーナーは、倉庫での商品ピッキング作業を模擬的に練習できるWebアプリです。
+          最大の特徴は、<strong>身近にあるペットボトルや文房具などを商品として登録し、教室や自宅の棚を倉庫に見立てて練習できる</strong>点です。
+        </p>
+        <p>
+          練習の流れは実際の業務に近い形で設計されています。画面に表示された伝票の指示に従って商品を集め、
+          バーコードスキャンで検品し、スコアと所要時間が自動記録されます。
+          伝票の枚数や1枚あたりの商品数を選べるので、初心者から経験者まで自分のレベルに合わせた練習が可能です。
+        </p>
+        <p>
+          ブラウザだけで動作し、アカウント登録やExcelなどの追加ソフトも不要。アクセスするだけですぐに使い始められます。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       中間CTA
+       ============================================= -->
+  <div class="mid-cta">
+    <h2>まずは試してみませんか？</h2>
+    <p>アカウント登録不要。ブラウザを開くだけで、すぐに練習を始められます。</p>
+    <a href="index.html" class="cta-btn">
+      アプリを開く
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- =============================================
+       主な機能
+       ============================================= -->
+  <div class="section section-bg">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Features</div>
+        <h2>主な機能</h2>
+        <p>練習に必要なすべてが揃っています</p>
+      </div>
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+          </div>
+          <div class="feature-content">
+            <h3>伝票ベースの練習</h3>
+            <p>実際の業務に近い伝票形式で練習。伝票数と商品数を選べるので、段階的にレベルアップ。</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="M3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/></svg>
+          </div>
+          <div class="feature-content">
+            <h3>柔軟な商品登録</h3>
+            <p>フォーム入力・バーコードスキャンの2通りで登録可能。</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>
+          </div>
+          <div class="feature-content">
+            <h3>バーコード検品</h3>
+            <p>スマホカメラでバーコードスキャン。ハンディターミナルに近い体験を提供。</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          </div>
+          <div class="feature-content">
+            <h3>成績記録・履歴</h3>
+            <p>スコア・正解数・所要時間が自動記録。履歴を振り返り上達を実感。</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="feature-content">
+            <h3>マルチユーザー対応</h3>
+            <p>1台の端末を複数人で共有可能。ユーザーごとに練習履歴を管理。</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+          </div>
+          <div class="feature-content">
+            <h3>データのバックアップ</h3>
+            <p>JSON形式でエクスポート/インポートに対応。端末の移行やデータの保全に。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       はじめに
+       ============================================= -->
+  <div class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Getting Started</div>
+        <h2>はじめに</h2>
+        <p>かんたん5ステップで練習開始</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>ユーザーを選択・作成</h3>
+            <p>アプリを開いたら、まず自分の名前を入力してユーザーを作成します。2回目以降は一覧から選ぶだけです。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>商品を登録</h3>
+            <p>「商品」画面から練習に使う商品を登録します。手動入力またはバーコードスキャンで追加できます。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>練習設定を行う</h3>
+            <p>ホーム画面で伝票数と伝票1枚の商品数を選択し、「練習を開始」をタップします。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>ピッキング作業を行う</h3>
+            <p>伝票に記載された商品名・数量を確認し、棚から商品を集めてチェック。全伝票完了で「検品に進む」をタップ。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h3>検品して結果を確認</h3>
+            <p>バーコードスキャンで検品を行い、結果画面でスコア・正解数・所要時間を確認。練習を重ねてスコアアップを目指しましょう。</p>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px;">
+        <a href="guide.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-primary);font-weight:600;font-size:0.9375rem;text-decoration:none;">
+          詳しい使い方ガイドはこちら
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       想定利用シーン
+       ============================================= -->
+  <div class="section section-bg">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Use Cases</div>
+        <h2>想定利用シーン</h2>
+        <p>さまざまな現場でご活用いただけます</p>
+      </div>
+      <div class="scene-grid">
+        <div class="scene-card">
+          <div class="scene-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M12 6h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/><path d="M8 6h.01"/><path d="M9 22v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/><rect x="4" y="2" width="16" height="20" rx="2"/></svg>
+          </div>
+          <h3>職業訓練施設</h3>
+          <p>物流コースの実習教材として。訓練室の予約が取れない日も、教室内で練習を継続できます。</p>
+        </div>
+        <div class="scene-card">
+          <div class="scene-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762"/></svg>
+          </div>
+          <h3>就労移行支援事業所</h3>
+          <p>物流系の就労を目指す利用者の自主練習ツールとして。個人のペースで繰り返し練習できます。</p>
+        </div>
+        <div class="scene-card">
+          <div class="scene-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+          </div>
+          <h3>企業の新人研修</h3>
+          <p>倉庫配属前の新入社員研修に。実際の商品バーコードを登録すれば、現場に近い形で事前練習ができます。</p>
+        </div>
+        <div class="scene-card">
+          <div class="scene-icon">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+          </div>
+          <h3>個人学習</h3>
+          <p>倉庫作業のアルバイトを始める前の予習に。自宅にある物を使って、業務の流れを事前に体験できます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       動作環境
+       ============================================= -->
+  <div class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Requirements</div>
+        <h2>動作環境</h2>
+        <p>ブラウザだけで動作します</p>
+      </div>
+      <div class="env-list">
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+          <div>
+            <div class="text">モダンブラウザ</div>
+            <div class="note">Chrome / Edge / Safari / Firefox</div>
+          </div>
+        </div>
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/></svg></span>
+          <div>
+            <div class="text">データ保存</div>
+            <div class="note">LocalStorageを使用（サーバー不要）</div>
+          </div>
+        </div>
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg></span>
+          <div>
+            <div class="text">インターネット接続</div>
+            <div class="note">初回読み込み時のみ必要（Vue.js CDN）</div>
+          </div>
+        </div>
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg></span>
+          <div>
+            <div class="text">カメラ（任意）</div>
+            <div class="note">バーコード検品・商品登録で使用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       データとプライバシー
+       ============================================= -->
+  <div class="section section-bg">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Privacy</div>
+        <h2>データとプライバシー</h2>
+        <p>安心してお使いいただけます</p>
+      </div>
+      <div class="overview-text">
+        <p>
+          このアプリは<strong>個人情報を一切収集しません</strong>。ユーザー名や練習履歴、商品データなどすべてのデータは、お使いの端末のブラウザ内（LocalStorage）にのみ保存されます。外部のサーバーにデータが送信されることはありません。
+        </p>
+        <p>
+          <strong>同じ端末・同じブラウザでのみ</strong>データが保持されます。別の端末や別のブラウザからアクセスした場合、データは共有されません。ブラウザのデータを消去すると練習履歴などもリセットされますのでご注意ください。
+        </p>
+        <p>
+          データのバックアップや端末の移行には、アプリ内の<strong>エクスポート機能</strong>をご利用ください。ユーザー情報・商品データ・練習履歴をまとめてJSON形式でファイルに書き出し、同じアプリに読み込めます。
+        </p>
+      </div>
+      <div class="env-list" style="margin-top: 32px;">
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <div>
+            <div class="text">個人情報の収集なし</div>
+            <div class="note">氏名・メールアドレス等の入力は不要</div>
+          </div>
+        </div>
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></span>
+          <div>
+            <div class="text">端末内でのみ有効</div>
+            <div class="note">データは外部に送信されません</div>
+          </div>
+        </div>
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <div>
+            <div class="text">プライバシーに配慮</div>
+            <div class="note">練習データが外部に送信されることはありません</div>
+          </div>
+        </div>
+        <div class="env-item">
+          <span class="icon"><svg class="lp-icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg></span>
+          <div>
+            <div class="text">エクスポート機能あり</div>
+            <div class="note">商品管理画面からデータの書き出し・読み込みが可能</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       フッター
+       ============================================= -->
+  <footer class="site-footer">
+    ピッキング練習トレーナー
+  </footer>
+
+  <script>document.documentElement.setAttribute('data-ready', '');</script>
+</body>
+</html>

@@ -1,0 +1,3474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピッキング練習トレーナー</title>
+  <style>
+    :root {
+      --color-primary: #4f6ef7;
+      --color-primary-dark: #3b5de7;
+      --color-primary-light: #eef2ff;
+      --color-primary-subtle: #dbeafe;
+      --color-success: #22c55e;
+      --color-success-dark: #16a34a;
+      --color-success-light: #dcfce7;
+      --color-danger: #ef4444;
+      --color-danger-dark: #dc2626;
+      --color-danger-light: #fef2f2;
+      --color-warning: #f59e0b;
+      --color-warning-light: #fffbeb;
+      --color-gray-50: #f8fafc;
+      --color-gray-100: #f1f5f9;
+      --color-gray-200: #e2e8f0;
+      --color-gray-300: #cbd5e1;
+      --color-gray-400: #94a3b8;
+      --color-gray-500: #64748b;
+      --color-gray-600: #475569;
+      --color-gray-700: #334155;
+      --color-gray-800: #1e293b;
+      --color-gray-900: #0f172a;
+      --color-white: #ffffff;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    [v-cloak] {
+      display: none !important;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--color-gray-100);
+      min-height: 100vh;
+      color: var(--color-gray-800);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .app-layout {
+      flex: 1;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* ヘッダー */
+    header {
+      background: linear-gradient(135deg, var(--color-primary), #6366f1);
+      color: var(--color-white);
+      padding: 16px 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(79, 110, 247, 0.25);
+    }
+
+    header h1 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      padding: 4px 14px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: var(--color-white);
+    }
+
+    .user-badge-label {
+      opacity: 0.75;
+      font-weight: 400;
+    }
+
+    .screen-container {
+      position: relative;
+      padding: 16px 0;
+    }
+
+    /* カード */
+    .card {
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-gray-200);
+    }
+
+    .card-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ボタン */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      width: 100%;
+      margin-bottom: 8px;
+      min-height: 48px;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:last-child {
+      margin-bottom: 0;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: var(--color-white);
+      box-shadow: 0 2px 4px rgba(79, 110, 247, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+      box-shadow: 0 4px 8px rgba(79, 110, 247, 0.35);
+    }
+
+    .btn-secondary {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      border: 1px solid var(--color-gray-200);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--color-gray-200);
+      border-color: var(--color-gray-300);
+    }
+
+    .btn-success {
+      background: var(--color-success);
+      color: var(--color-white);
+      box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: var(--color-success-dark);
+    }
+
+    .btn-danger {
+      background: var(--color-danger);
+      color: var(--color-white);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: var(--color-danger-dark);
+    }
+
+    .btn-outline {
+      background: var(--color-white);
+      border: 1.5px solid var(--color-gray-300);
+      color: var(--color-gray-700);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.8125rem;
+      width: auto;
+      min-height: auto;
+      border-radius: 6px;
+    }
+
+    /* 入力フォーム */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      min-height: 48px;
+      background: var(--color-white);
+      color: var(--color-gray-800);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+    }
+
+    .input-group input::placeholder {
+      color: var(--color-gray-400);
+    }
+
+    /* リスト共通 */
+    .user-list, .product-list, .history-list, .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .user-item, .product-item, .history-item, .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--color-gray-50);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      min-width: 0;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    /* ユーザーリスト */
+    .user-item {
+      cursor: pointer;
+      min-height: 48px;
+    }
+
+    .user-item:hover {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    .user-item .name {
+      font-weight: 600;
+      color: var(--color-gray-800);
+    }
+
+    .user-item .stats {
+      font-size: 0.8125rem;
+      color: var(--color-gray-500);
+    }
+
+    /* 商品リスト */
+    .product-item .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-item .code {
+      font-size: 0.6875rem;
+      color: var(--color-gray-400);
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .product-item .name {
+      font-weight: 600;
+      color: var(--color-gray-800);
+      font-size: 0.9375rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .product-item .stock-control {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .product-item .stock-control .stock-btn {
+      width: 30px;
+      height: 30px;
+      min-height: 30px;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: 6px;
+      background: var(--color-white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      transition: all 0.15s;
+    }
+
+    .product-item .stock-control .stock-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .product-item .stock-control .stock-btn:active {
+      background: var(--color-gray-200);
+    }
+
+    .product-item .stock-control .stock-value {
+      font-size: 0.875rem;
+      font-weight: 700;
+      min-width: 28px;
+      text-align: center;
+      color: var(--color-gray-800);
+    }
+
+    .product-item .stock-control .stock-value.out-of-stock {
+      color: var(--color-danger);
+    }
+
+    .product-item.out-of-stock {
+      opacity: 0.45;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
+      flex-shrink: 0;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      transition: all 0.15s;
+    }
+
+    .icon-btn.delete {
+      background: var(--color-danger-light);
+      color: var(--color-danger-dark);
+    }
+
+    .icon-btn.delete:hover {
+      background: var(--color-danger);
+      color: var(--color-white);
+    }
+
+    /* 進捗表示 */
+    .picking-progress {
+      font-size: 0.8125rem;
+      color: var(--color-gray-500);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    /* 検品画面 */
+    .verification-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .verification-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--color-gray-50);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .verification-item.checked {
+      background: var(--color-success-light);
+      border-color: var(--color-success);
+    }
+
+    .check-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--color-gray-200);
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8125rem;
+      flex-shrink: 0;
+    }
+
+    .verification-item.checked .check-icon {
+      background: var(--color-success);
+      color: var(--color-white);
+    }
+
+    /* 結果画面 */
+    .result-summary {
+      text-align: center;
+      padding: 28px 24px;
+    }
+
+    .result-icon {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+    }
+
+    .result-score {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      line-height: 1.2;
+    }
+
+    .result-score span {
+      font-size: 1.25rem;
+      color: var(--color-gray-400);
+      font-weight: 500;
+    }
+
+    .result-score-label {
+      font-size: 0.8125rem;
+      color: var(--color-gray-400);
+      margin-top: 4px;
+    }
+
+    /* 円形プログレス */
+    .result-ring {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 16px;
+    }
+
+    .result-ring svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .result-ring .ring-bg {
+      fill: none;
+      stroke: var(--color-gray-100);
+      stroke-width: 10;
+    }
+
+    .result-ring .ring-fill {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease, stroke 0.3s ease;
+    }
+
+    .result-ring-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .result-ring-score {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .result-ring-unit {
+      font-size: 0.875rem;
+      color: var(--color-gray-400);
+      font-weight: 500;
+    }
+
+    /* 結果サマリーカード */
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .result-stat-card {
+      background: var(--color-gray-50);
+      border-radius: var(--radius-sm);
+      padding: 14px 12px;
+      text-align: center;
+    }
+
+    .result-stat-card .stat-value {
+      font-size: 1.375rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      line-height: 1.2;
+    }
+
+    .result-stat-card .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-gray-400);
+      margin-top: 2px;
+    }
+
+    /* 伝票ごとの結果 */
+    .result-slips-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-gray-700);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .result-slip-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .result-slip-row:last-child {
+      border-bottom: none;
+    }
+
+    .slip-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      white-space: nowrap;
+      min-width: 52px;
+    }
+
+    .slip-bar-wrap {
+      flex: 1;
+      height: 20px;
+      background: var(--color-gray-100);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slip-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s ease;
+    }
+
+    .slip-bar-fill.bar-perfect {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+
+    .slip-bar-fill.bar-good {
+      background: linear-gradient(90deg, #60a5fa, #3b82f6);
+    }
+
+    .slip-bar-fill.bar-warn {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    }
+
+    .slip-bar-fill.bar-bad {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+    }
+
+    .slip-score {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-gray-700);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .result-details {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      font-size: 0.9375rem;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-row span:first-child {
+      color: var(--color-gray-500);
+      font-weight: 500;
+    }
+
+    .result-row span:last-child {
+      color: var(--color-gray-800);
+      font-weight: 700;
+    }
+
+    /* 振り返りセクション */
+    .review-section {
+      margin-top: 0;
+    }
+
+    .review-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-gray-700);
+      transition: background 0.2s;
+    }
+
+    .review-toggle:hover {
+      background: var(--color-gray-50);
+    }
+
+    .review-toggle-arrow {
+      transition: transform 0.2s;
+      color: var(--color-gray-400);
+    }
+
+    .review-toggle-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .review-slip {
+      margin-top: 14px;
+    }
+
+    .review-slip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-gray-600);
+      border-bottom: 2px solid var(--color-gray-200);
+    }
+
+    .review-slip-badge {
+      font-size: 0.6875rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .review-slip-badge.perfect {
+      background: var(--color-success-light);
+      color: #16a34a;
+    }
+
+    .review-slip-badge.has-errors {
+      background: var(--color-danger-light);
+      color: #dc2626;
+    }
+
+    .review-task {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      font-size: 0.8125rem;
+    }
+
+    .review-task:last-child {
+      border-bottom: none;
+    }
+
+    .review-task-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .review-task-icon.correct {
+      background: var(--color-success-light);
+      color: #16a34a;
+    }
+
+    .review-task-icon.wrong {
+      background: var(--color-danger-light);
+      color: #dc2626;
+    }
+
+    .review-task-icon .lp-icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    .review-task-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .review-task-name {
+      font-weight: 600;
+      color: var(--color-gray-800);
+    }
+
+    .review-task-detail {
+      font-size: 0.75rem;
+      color: var(--color-gray-400);
+      margin-top: 1px;
+    }
+
+    .review-task-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .review-task-status.correct {
+      color: #16a34a;
+    }
+
+    .review-task-status.wrong {
+      color: #dc2626;
+    }
+
+    .new-best {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: var(--color-white);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+      font-size: 0.9375rem;
+    }
+
+    /* タブ */
+    .tabs {
+      display: flex;
+      background: var(--color-gray-100);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      margin-bottom: 16px;
+      gap: 2px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 12px;
+      text-align: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-gray-500);
+      border-radius: 6px;
+      white-space: nowrap;
+      min-height: 40px;
+      transition: all 0.15s;
+    }
+
+    .tab:hover {
+      color: var(--color-gray-700);
+    }
+
+    .tab.active {
+      color: var(--color-primary);
+      background: var(--color-white);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* 履歴 */
+    .history-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .history-item .date {
+      font-size: 0.75rem;
+      color: var(--color-gray-400);
+      font-weight: 500;
+    }
+
+    .history-item .score {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+    }
+
+    /* 履歴サマリー統計 */
+    .history-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .history-summary-card {
+      background: var(--color-gray-50);
+      border-radius: var(--radius-sm);
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .history-summary-card .hs-value {
+      font-size: 1.375rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      line-height: 1.2;
+    }
+
+    .history-summary-card .hs-value .hs-unit {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--color-gray-400);
+    }
+
+    .history-summary-card .hs-label {
+      font-size: 0.6875rem;
+      color: var(--color-gray-400);
+      margin-top: 2px;
+    }
+
+    /* スコア推移ミニチャート */
+    .history-chart {
+      margin-bottom: 20px;
+    }
+
+    .history-chart-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-gray-700);
+      margin-bottom: 8px;
+    }
+
+    .history-chart-area {
+      position: relative;
+      background: var(--color-gray-50);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .history-chart-area svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .chart-guide-line {
+      stroke: var(--color-gray-200);
+      stroke-dasharray: 4 4;
+    }
+
+    .chart-guide-label {
+      font-size: 9px;
+      fill: var(--color-gray-400);
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--color-primary);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-area-fill {
+      fill: url(#chartGradient);
+      opacity: 0.3;
+    }
+
+    .chart-dot {
+      fill: var(--color-primary);
+      stroke: var(--color-white);
+      stroke-width: 2;
+    }
+
+    /* 履歴カード（リッチ版） */
+    .history-rich-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .history-rich-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-100);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.2s;
+    }
+
+    .history-rich-item:hover {
+      border-color: var(--color-gray-200);
+    }
+
+    .history-score-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-white);
+      flex-shrink: 0;
+    }
+
+    .badge-perfect { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .badge-good { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+    .badge-warn { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+    .badge-bad { background: linear-gradient(135deg, #f87171, #ef4444); }
+
+    .history-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .history-item-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .history-item-score {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+    }
+
+    .history-item-date {
+      font-size: 0.6875rem;
+      color: var(--color-gray-400);
+      white-space: nowrap;
+    }
+
+    .history-item-meta {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: var(--color-gray-400);
+    }
+
+    .history-item-bar-wrap {
+      width: 100%;
+      height: 4px;
+      background: var(--color-gray-100);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .history-item-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* スキャナー */
+    #scanner-container, #product-scanner-container {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    #scanner-container video, #product-scanner-container video {
+      width: 100%;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ボトムナビ */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--color-gray-200);
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0;
+      padding-bottom: max(6px, env(safe-area-inset-bottom));
+      z-index: 99;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 20px;
+      color: var(--color-gray-400);
+      text-decoration: none;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      min-height: 48px;
+      transition: color 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-item.active {
+      color: var(--color-primary);
+    }
+
+    .nav-item .icon {
+      font-size: 1.375rem;
+      margin-bottom: 2px;
+    }
+
+    .main-content {
+      padding-bottom: 76px;
+    }
+
+    /* 空の状態 */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--color-gray-400);
+    }
+
+    .empty-state .icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+
+    .empty-state p {
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+
+    /* アラート */
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    .alert-info {
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      border: 1px solid var(--color-primary-subtle);
+    }
+
+    /* プログレスバー */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--color-gray-200);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-bar-fill.success {
+      background: var(--color-success);
+    }
+
+    /* 伝票カード */
+    .slip-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .slip-card {
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fefdfb;
+      border: 1px solid #e8e0c8;
+      border-radius: var(--radius-sm);
+      padding: 0;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slip-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #c0392b, #e74c3c);
+    }
+
+    .slip-card:active:not(.slip-completed) {
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+      transform: translateY(1px);
+    }
+
+    .slip-completed {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .slip-completed::before {
+      background: linear-gradient(90deg, var(--color-success), #4ade80);
+    }
+
+    .slip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px 8px;
+      border-bottom: 1px dashed #e0d9c0;
+    }
+
+    .slip-title-area {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .slip-label {
+      font-size: 0.6875rem;
+      color: #9a8e6a;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .slip-number {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: var(--color-gray-800);
+      font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+    }
+
+    .slip-status {
+      font-size: 0.75rem;
+      color: #9a8e6a;
+      padding: 3px 10px;
+      border: 1px solid #e0d9c0;
+      border-radius: 4px;
+      background: #fff;
+      font-weight: 600;
+    }
+
+    .slip-completed .slip-status {
+      color: var(--color-success);
+      font-weight: 700;
+      border-color: var(--color-success);
+      background: var(--color-success-light);
+    }
+
+    .slip-items {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .slip-item-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      border-bottom: 1px dotted #ece5d0;
+      gap: 8px;
+      font-size: 0.875rem;
+      transition: background 0.12s;
+    }
+
+    .slip-item-row:last-child {
+      border-bottom: none;
+    }
+
+    .slip-item-row.slip-item-picked {
+      background: rgba(34, 197, 94, 0.06);
+    }
+
+    .slip-item-row.slip-item-missed {
+      background: rgba(239, 68, 68, 0.06);
+    }
+
+    .slip-item-check {
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid var(--color-gray-300);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      background: #fff;
+      transition: all 0.12s;
+    }
+
+    .slip-item-picked .slip-item-check {
+      border-color: var(--color-success);
+      color: var(--color-success);
+      background: var(--color-success-light);
+      font-weight: 700;
+    }
+
+    .slip-item-missed .slip-item-check {
+      border-color: var(--color-danger);
+      color: var(--color-danger);
+      background: var(--color-danger-light);
+      font-weight: 700;
+    }
+
+    .slip-item-seq {
+      font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+      font-size: 0.6875rem;
+      color: #9a8e6a;
+      min-width: 18px;
+      text-align: right;
+    }
+
+    .slip-item-detail {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .slip-item-name {
+      color: var(--color-gray-800);
+      font-weight: 500;
+    }
+
+    .slip-item-code {
+      font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+      font-size: 0.6875rem;
+      color: var(--color-gray-400);
+      min-width: 56px;
+    }
+
+    .slip-item-qty {
+      font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+      font-weight: 800;
+      color: var(--color-gray-800);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .slip-item-header {
+      background: #f7f3e8;
+      font-weight: 700;
+      font-size: 0.6875rem;
+      color: #9a8e6a;
+      padding: 6px 16px;
+      border-bottom: 1px solid #e0d9c0;
+      letter-spacing: 0.04em;
+    }
+
+    .slip-item-header .slip-item-check {
+      border: none;
+      background: transparent;
+    }
+
+    .slip-nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+
+    .slip-nav-btn {
+      flex: 1;
+      min-height: 44px;
+    }
+
+    .slip-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      border-top: 1px dashed #e0d9c0;
+      font-size: 0.6875rem;
+      color: #9a8e6a;
+      font-weight: 600;
+    }
+
+    .slip-item-tappable {
+      cursor: pointer;
+    }
+
+    .slip-item-tappable:active {
+      background: #f7f3e8;
+    }
+
+    /* トランジション */
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.2s;
+    }
+
+    .fade-enter-from, .fade-leave-to {
+      opacity: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fade-enter-active, .fade-leave-active {
+        transition: none;
+      }
+    }
+
+    /* Lucide SVGアイコン */
+    .icon-svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      vertical-align: middle;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+
+    .icon-svg.icon-nav {
+      width: 24px;
+      height: 24px;
+    }
+
+    .icon-svg.icon-empty {
+      width: 48px;
+      height: 48px;
+      opacity: 0.7;
+    }
+
+    .icon-svg.icon-result {
+      width: 56px;
+      height: 56px;
+    }
+
+    /* モーダル */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0,0,0,0.05);
+    }
+
+    .modal-title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--color-gray-900);
+    }
+
+    .modal-body {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .modal-body .modal-detail {
+      background: var(--color-gray-50);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 0.8125rem;
+      border: 1px solid var(--color-gray-200);
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    /* アプリレイアウト */
+    .app-layout {
+      display: flex;
+    }
+
+    /* サイドナビ（デフォルト非表示） */
+    .side-nav {
+      display: none;
+    }
+
+    /* =============================================
+       レスポンシブ: タブレット (768px以上)
+       ============================================= */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 100%;
+        padding: 24px;
+      }
+
+      header {
+        padding: 18px 24px;
+      }
+
+      header h1 {
+        font-size: 1.375rem;
+      }
+
+      .card {
+        padding: 24px;
+        margin-bottom: 16px;
+      }
+
+      .card-title {
+        font-size: 1rem;
+      }
+
+      .product-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .user-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .history-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .result-summary {
+        padding: 32px;
+      }
+
+      .result-score {
+        font-size: 3.25rem;
+      }
+
+      .verification-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .modal-content {
+        max-width: 440px;
+        padding: 28px;
+      }
+
+      /* タブレット: ボトムナビ非表示、サイドナビ表示 */
+      .bottom-nav {
+        display: none;
+      }
+
+      .side-nav {
+        display: flex;
+        flex-direction: column;
+        width: 72px;
+        background: var(--color-white);
+        border-right: 1px solid var(--color-gray-200);
+        padding: 12px 0;
+        position: sticky;
+        top: 68px;
+        height: fit-content;
+        align-self: flex-start;
+        flex-shrink: 0;
+      }
+
+      .side-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 12px 8px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--color-gray-400);
+        font-size: 0.625rem;
+        font-weight: 600;
+        transition: all 0.15s;
+        letter-spacing: 0.02em;
+        position: relative;
+      }
+
+      .side-nav-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: var(--color-primary);
+        border-radius: 0 3px 3px 0;
+        transition: height 0.15s;
+      }
+
+      .side-nav-item:hover {
+        color: var(--color-gray-700);
+      }
+
+      .side-nav-item.active {
+        color: var(--color-primary);
+      }
+
+      .side-nav-item.active::before {
+        height: 24px;
+      }
+
+      .side-nav-item .icon {
+        font-size: 1.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .main-content {
+        flex: 1;
+        padding-bottom: 16px;
+        min-width: 0;
+      }
+
+      .slip-card {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .slip-nav {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    /* =============================================
+       レスポンシブ: PC (1024px以上)
+       ============================================= */
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 840px;
+        padding: 32px;
+      }
+
+      header {
+        padding: 20px 32px;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .user-badge {
+        font-size: 0.9375rem;
+      }
+
+      .card {
+        padding: 28px;
+        margin-bottom: 20px;
+        border-radius: var(--radius-lg);
+      }
+
+      .card-title {
+        font-size: 1.0625rem;
+        margin-bottom: 20px;
+      }
+
+      .btn {
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+      }
+
+      .btn-small {
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      .input-group input, .input-group select {
+        max-width: 100%;
+      }
+
+      .product-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .user-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .history-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .verification-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .result-summary {
+        padding: 40px;
+      }
+
+      .result-score {
+        font-size: 3.5rem;
+      }
+
+      .result-details {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .modal-content {
+        max-width: 480px;
+        padding: 32px;
+      }
+
+      /* PC: サイドナビ拡張 */
+      .side-nav {
+        width: 180px;
+        padding: 16px 0;
+        top: 78px;
+      }
+
+      .side-nav-item {
+        flex-direction: row;
+        gap: 10px;
+        padding: 12px 20px;
+        font-size: 0.875rem;
+        justify-content: flex-start;
+      }
+
+      .side-nav-item .icon {
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .slip-card {
+        max-width: 640px;
+      }
+
+      .slip-nav {
+        max-width: 640px;
+      }
+
+      .slip-item-row {
+        padding: 10px 20px;
+        font-size: 0.9375rem;
+      }
+
+      .slip-header {
+        padding: 14px 20px 10px;
+      }
+
+      .slip-footer {
+        padding: 10px 20px;
+      }
+    }
+
+    /* =============================================
+       レスポンシブ: ワイドPC (1280px以上)
+       ============================================= */
+    @media (min-width: 1280px) {
+      .container {
+        max-width: 1000px;
+      }
+
+      .product-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* =============================================
+       フッター
+       ============================================= */
+    .site-footer {
+      background: var(--color-gray-900);
+      color: var(--color-gray-400);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.8125rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <app-header></app-header>
+
+    <div class="app-layout">
+      <side-nav v-if="state.currentUser && !isPracticing"></side-nav>
+
+      <main class="main-content">
+        <div class="container">
+          <div class="screen-container">
+            <transition name="fade" mode="out-in">
+              <component :is="state.currentScreen"></component>
+            </transition>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <bottom-nav v-if="state.currentUser && !isPracticing"></bottom-nav>
+
+    <footer v-if="!isPracticing" class="site-footer">
+      ピッキング練習トレーナー
+    </footer>
+
+    <!-- グローバル通知モーダル -->
+    <div v-if="notify.visible" class="modal-overlay" @click.self="closeNotify">
+      <div class="modal-content">
+        <div class="modal-title">{{ notify.title }}</div>
+        <div class="modal-body">{{ notify.message }}</div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" @click="closeNotify">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="picking-trainer-logic.js"></script>
+  <script>
+    const { createApp, reactive, computed, watch, onMounted, onBeforeUnmount, inject, provide } = Vue;
+
+    const STORAGE_KEYS = {
+      users: 'picking_users',
+      products: 'picking_products',
+      history: 'picking_history',
+      currentUser: 'picking_current_user',
+      settings: 'picking_settings'
+    };
+
+    // ========================================
+    // Lucide アイコン SVG テンプレート
+    // ========================================
+    const ICONS = {
+      house: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+      package: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="M3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/></svg>',
+      settings: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+      bookOpen: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+      user: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      plus: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>',
+      barChart: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>',
+      refreshCw: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>',
+      download: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>',
+      upload: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>',
+      trash: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+      pencil: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>',
+      trophy: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/></svg>',
+      thumbsUp: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/><path d="M7 10v12"/></svg>',
+      zap: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>',
+      check: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+      x: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+      camera: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>',
+      circleCheck: '<svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+      squareStop: '<svg class="icon-svg" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>',
+      lightbulb: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+      smartphone: '<svg class="icon-svg" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
+      folder: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
+    };
+
+    // アイコンをサイズ付きで取得するヘルパー
+    function iconSvg(name, sizeClass) {
+      const svg = ICONS[name] || '';
+      if (sizeClass) {
+        return svg.replace('class="icon-svg"', `class="icon-svg ${sizeClass}"`);
+      }
+      return svg;
+    }
+
+    // ========================================
+    // ヘッダーコンポーネント
+    // ========================================
+    const AppHeader = {
+      template: `
+        <header>
+          <h1>ピッキング練習トレーナー</h1>
+          <div class="user-badge"><span v-html="icons.user"></span><span v-if="state.currentUser" class="user-badge-label">ログイン中：</span>{{ userBadgeText }}</div>
+        </header>
+      `,
+      setup() {
+        const state = inject('appState');
+        const userBadgeText = computed(() => {
+          return state.currentUser ? state.currentUser.name + ' さん' : 'ユーザーを選択してください';
+        });
+
+        const icons = { user: iconSvg('user') };
+        return { state, userBadgeText, icons };
+      }
+    };
+
+    // ========================================
+    // ボトムナビゲーション
+    // ========================================
+    const BottomNav = {
+      template: `
+        <nav class="bottom-nav">
+          <button class="nav-item" :class="{ active: isActive('screen-home') }" @click="navigateTo('screen-home')">
+            <span class="icon" v-html="icons.house"></span>
+            <span>ホーム</span>
+          </button>
+          <button class="nav-item" :class="{ active: isActive('screen-products') }" @click="navigateTo('screen-products')">
+            <span class="icon" v-html="icons.package"></span>
+            <span>商品</span>
+          </button>
+          <button class="nav-item" :class="{ active: isActive('screen-settings') }" @click="navigateTo('screen-settings')">
+            <span class="icon" v-html="icons.settings"></span>
+            <span>設定</span>
+          </button>
+          <a href="about.html" class="nav-item" style="text-decoration:none;">
+            <span class="icon" v-html="icons.lightbulb"></span>
+            <span>はじめに</span>
+          </a>
+          <a href="guide.html" class="nav-item" style="text-decoration:none;">
+            <span class="icon" v-html="icons.bookOpen"></span>
+            <span>使い方</span>
+          </a>
+        </nav>
+      `,
+      setup() {
+        const state = inject('appState');
+        const isActive = (screen) => state.currentScreen === screen;
+        const navigateTo = (screen) => {
+          state.currentScreen = screen;
+        };
+        const icons = { house: iconSvg('house', 'icon-nav'), package: iconSvg('package', 'icon-nav'), settings: iconSvg('settings', 'icon-nav'), lightbulb: iconSvg('lightbulb', 'icon-nav'), bookOpen: iconSvg('bookOpen', 'icon-nav') };
+        return { isActive, navigateTo, icons };
+      }
+    };
+
+    // ========================================
+    // サイドナビゲーション（タブレット・PC用）
+    // ========================================
+    const SideNav = {
+      template: `
+        <nav class="side-nav">
+          <button class="side-nav-item" :class="{ active: isActive('screen-home') }" @click="navigateTo('screen-home')">
+            <span class="icon" v-html="icons.house"></span>
+            <span class="label">ホーム</span>
+          </button>
+          <button class="side-nav-item" :class="{ active: isActive('screen-products') }" @click="navigateTo('screen-products')">
+            <span class="icon" v-html="icons.package"></span>
+            <span class="label">商品</span>
+          </button>
+          <button class="side-nav-item" :class="{ active: isActive('screen-settings') }" @click="navigateTo('screen-settings')">
+            <span class="icon" v-html="icons.settings"></span>
+            <span class="label">設定</span>
+          </button>
+          <a href="about.html" class="side-nav-item" style="text-decoration:none;margin-top:12px;border-top:1px solid var(--color-gray-200);padding-top:16px;">
+            <span class="icon" v-html="icons.lightbulb"></span>
+            <span class="label">はじめに</span>
+          </a>
+          <a href="guide.html" class="side-nav-item" style="text-decoration:none;">
+            <span class="icon" v-html="icons.bookOpen"></span>
+            <span class="label">使い方</span>
+          </a>
+        </nav>
+      `,
+      setup() {
+        const state = inject('appState');
+        const isActive = (screen) => state.currentScreen === screen;
+        const navigateTo = (screen) => {
+          state.currentScreen = screen;
+        };
+        const icons = { house: iconSvg('house', 'icon-nav'), package: iconSvg('package', 'icon-nav'), settings: iconSvg('settings', 'icon-nav'), lightbulb: iconSvg('lightbulb', 'icon-nav'), bookOpen: iconSvg('bookOpen', 'icon-nav') };
+        return { isActive, navigateTo, icons };
+      }
+    };
+
+    // ========================================
+    // ユーザー選択画面
+    // ========================================
+    const ScreenUserSelect = {
+      template: `
+        <div>
+          <div class="card">
+            <div class="card-title"><span v-html="icons.user"></span> 練習する人を選んでください</div>
+            <div v-if="users.length === 0" class="empty-state">
+              <div class="icon" v-html="icons.userLg"></div>
+              <p>ユーザーがいません<br>下のフォームから追加してください</p>
+            </div>
+            <div v-else class="user-list">
+              <div v-for="user in users" :key="user.id" class="user-item" @click="selectUser(user.id)">
+                <div>
+                  <div class="name">{{ user.name }}</div>
+                  <div class="stats">練習回数: {{ getUserStats(user.id).count }}回 / 平均点: {{ getUserStats(user.id).avgScore }}</div>
+                </div>
+                <span>→</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span v-html="icons.plus"></span> 新しいユーザーを追加</div>
+            <div class="input-group">
+              <label>名前</label>
+              <input type="text" v-model="newUserName" placeholder="例：田中さん" @keyup.enter="addUser">
+            </div>
+            <button class="btn btn-primary" @click="addUser">追加する</button>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+        const actions = inject('actions');
+        const showNotify = inject('showNotify');
+        const newUserName = Vue.ref('');
+
+        const users = computed(() => state.users);
+
+        const getUserStats = (userId) => {
+          const userHistory = state.history.filter(h => h.userId === userId);
+          const count = userHistory.length;
+          const avgScore = count > 0
+            ? Math.round(userHistory.reduce((sum, h) => sum + h.score, 0) / count)
+            : '-';
+          return { count, avgScore };
+        };
+
+        const addUser = () => {
+          const name = newUserName.value.trim();
+          if (!name) {
+            showNotify('入力エラー', '名前を入力してください');
+            return;
+          }
+
+          const newUser = {
+            id: Date.now().toString(),
+            name: name,
+            createdAt: new Date().toISOString()
+          };
+
+          state.users.push(newUser);
+          newUserName.value = '';
+        };
+
+        const selectUser = (userId) => {
+          const user = state.users.find(u => u.id === userId);
+          if (user) {
+            state.currentUser = user;
+            state.currentScreen = 'screen-home';
+          }
+        };
+
+        const icons = { user: iconSvg('user'), userLg: iconSvg('user', 'icon-empty'), plus: iconSvg('plus') };
+        return { state, users, newUserName, addUser, selectUser, getUserStats, icons };
+      }
+    };
+
+    // ========================================
+    // ホーム画面
+    // ========================================
+    const ScreenHome = {
+      template: `
+        <div>
+          <div class="card">
+            <div class="card-title"><span v-html="icons.settings"></span> 練習設定</div>
+            <div class="input-group">
+              <label>伝票数</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.slipCount === 1 ? 'btn-primary' : 'btn-secondary'" @click="state.slipCount = 1">1枚</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.slipCount === 3 ? 'btn-primary' : 'btn-secondary'" @click="state.slipCount = 3">3枚</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.slipCount === 5 ? 'btn-primary' : 'btn-secondary'" @click="state.slipCount = 5">5枚</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.slipCount === 7 ? 'btn-primary' : 'btn-secondary'" @click="state.slipCount = 7">7枚</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.slipCount === 10 ? 'btn-primary' : 'btn-secondary'" @click="state.slipCount = 10">10枚</button>
+              </div>
+            </div>
+            <div class="input-group">
+              <label>伝票1枚の商品数</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.itemsPerSlip === 5 ? 'btn-primary' : 'btn-secondary'" @click="state.itemsPerSlip = 5">5品</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.itemsPerSlip === 10 ? 'btn-primary' : 'btn-secondary'" @click="state.itemsPerSlip = 10">10品</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.itemsPerSlip === 15 ? 'btn-primary' : 'btn-secondary'" @click="state.itemsPerSlip = 15">15品</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.itemsPerSlip === 20 ? 'btn-primary' : 'btn-secondary'" @click="state.itemsPerSlip = 20">20品</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.itemsPerSlip === 25 ? 'btn-primary' : 'btn-secondary'" @click="state.itemsPerSlip = 25">25品</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <button class="btn btn-primary" @click="startPractice">練習を開始</button>
+            <button class="btn btn-secondary" @click="state.currentScreen = 'screen-history'"><span v-html="icons.barChart"></span> 練習履歴を見る</button>
+          </div>
+
+          <div class="card">
+            <button class="btn btn-outline" @click="changeUser"><span v-html="icons.refreshCw"></span> ユーザーを切り替える</button>
+          </div>
+
+          <div v-if="modal.visible" class="modal-overlay" @click.self="closeModal">
+            <div class="modal-content">
+              <div class="modal-title">{{ modal.title }}</div>
+              <div class="modal-body">
+                <div>{{ modal.message }}</div>
+                <div v-if="modal.detail" class="modal-detail">{{ modal.detail }}</div>
+              </div>
+              <div class="modal-actions">
+                <button v-if="modal.confirmable" class="btn btn-secondary" @click="closeModal">キャンセル</button>
+                <button class="btn btn-primary" @click="onModalOk">{{ modal.confirmable ? 'このまま開始' : 'OK' }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+        const actions = inject('actions');
+
+        const modal = Vue.reactive({
+          visible: false,
+          title: '',
+          message: '',
+          detail: '',
+          confirmable: false
+        });
+
+        const showModal = (title, message, detail, confirmable) => {
+          modal.title = title;
+          modal.message = message;
+          modal.detail = detail || '';
+          modal.confirmable = !!confirmable;
+          modal.visible = true;
+        };
+
+        const closeModal = () => {
+          modal.visible = false;
+        };
+
+        const onModalOk = () => {
+          modal.visible = false;
+          if (modal.confirmable) {
+            actions.startSlipMode();
+          }
+        };
+
+        const startPractice = () => {
+          if (state.products.length < 3) {
+            showModal('商品数が不足', '練習には最低3つの商品が必要です。「商品」タブから商品を登録してください。');
+            return;
+          }
+
+          const availableProducts = state.products.filter(p => (p.stock ?? 99) > 0);
+          if (availableProducts.length === 0) {
+            showModal('在庫なし', '在庫のある商品がありません。「商品」タブから在庫数を設定してください。');
+            return;
+          }
+
+          if (availableProducts.length < state.itemsPerSlip) {
+            showModal(
+              '商品種類が不足',
+              `伝票1枚の商品数（${state.itemsPerSlip}品）が、在庫のある商品の種類数（${availableProducts.length}種類）を超えています。伝票1枚の商品数を減らすか、「商品」タブから商品を追加してください。`,
+              `伝票1枚の商品数: ${state.itemsPerSlip}品\n在庫あり商品: ${availableProducts.length}種類`
+            );
+            return;
+          }
+
+          const totalStock = availableProducts.reduce((sum, p) => sum + (p.stock ?? 99), 0);
+          const requestedTasks = state.slipCount * state.itemsPerSlip;
+
+          if (totalStock < requestedTasks) {
+            showModal(
+              '在庫が不足しています',
+              '在庫数が足りないため練習を開始できません。伝票数・商品数を減らすか、「商品」タブから在庫を追加してください。',
+              `要求: ${state.slipCount}枚 × ${state.itemsPerSlip}品 = ${requestedTasks}タスク\n在庫合計: ${totalStock}個`
+            );
+            return;
+          }
+
+          actions.startSlipMode();
+        };
+
+        const changeUser = () => {
+          state.currentUser = null;
+          state.currentScreen = 'screen-user-select';
+        };
+
+        const icons = { settings: iconSvg('settings'), barChart: iconSvg('barChart'), refreshCw: iconSvg('refreshCw') };
+        return { state, modal, startPractice, changeUser, closeModal, onModalOk, icons };
+      }
+    };
+
+    // ========================================
+    // 検品画面
+    // ========================================
+    const ScreenVerification = {
+      template: `
+        <div>
+          <div class="card">
+            <div class="card-title"><span v-html="icons.camera"></span> バーコードで検品</div>
+            <div id="scanner-container"></div>
+            <button class="btn btn-secondary" @click="toggleScanner">
+              <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span v-html="icons.circleCheck"></span> 検品リスト</div>
+            <div class="verification-list">
+              <div v-for="(task, index) in tasks" :key="index"
+                   class="verification-item"
+                   :class="{ checked: task.verified }">
+                <div class="check-icon" v-html="task.verified ? icons.check : '–'"></div>
+                <div class="info">
+                  <div class="name">{{ task.product.name }}</div>
+                  <div class="code">{{ task.product.code }} × {{ task.quantity }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <button class="btn btn-primary" @click="finishVerification">検品を完了する</button>
+            <button class="btn btn-secondary" @click="skipVerification">スキップして結果へ</button>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+        const actions = inject('actions');
+        const showNotify = inject('showNotify');
+        const scannerActive = Vue.ref(false);
+        let scanner = null;
+
+        const tasks = computed(() => {
+          if (!state.practice) return [];
+          return state.practice.slips.flatMap(slip => slip.tasks);
+        });
+
+        const toggleScanner = () => {
+          if (scanner) {
+            scanner.stop().then(() => {
+              scanner = null;
+              scannerActive.value = false;
+            }).catch(console.error);
+            return;
+          }
+
+          scannerActive.value = true;
+          scanner = new Html5Qrcode('scanner-container');
+          scanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 250, height: 100 } },
+            (decodedText) => {
+              tasks.value.forEach(task => {
+                if (task.product.code === decodedText && !task.verified) {
+                  task.verified = true;
+                  if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                  }
+                }
+              });
+            },
+            () => {}
+          ).catch(err => {
+            console.error('スキャナー起動エラー:', err);
+            showNotify('カメラエラー', 'カメラを起動できませんでした。カメラのアクセス許可を確認してください。');
+            scannerActive.value = false;
+          });
+        };
+
+        const finishVerification = () => {
+          if (scanner) {
+            scanner.stop().catch(console.error);
+            scanner = null;
+            scannerActive.value = false;
+          }
+          const verifiedCount = tasks.value.filter(t => t.verified).length;
+          state.practice.verifiedCount = verifiedCount;
+          actions.showSlipResult();
+        };
+
+        const skipVerification = () => {
+          if (scanner) {
+            scanner.stop().catch(console.error);
+            scanner = null;
+            scannerActive.value = false;
+          }
+          state.practice.verifiedCount = null;
+          actions.showSlipResult();
+        };
+
+        onBeforeUnmount(() => {
+          if (scanner) {
+            scanner.stop().catch(console.error);
+          }
+        });
+
+        const icons = { camera: iconSvg('camera'), squareStop: iconSvg('squareStop'), circleCheck: iconSvg('circleCheck'), check: iconSvg('check') };
+        return { state, tasks, scannerActive, toggleScanner, finishVerification, skipVerification, icons };
+      }
+    };
+
+    // ========================================
+    // 伝票一覧画面
+    // ========================================
+    const ScreenSlipList = {
+      template: `
+        <div>
+          <div class="card">
+            <div class="picking-progress">
+              伝票: {{ currentViewIndex + 1 }} / {{ totalCount }} 枚　（完了: {{ completedCount }}枚）
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" :class="{ success: allDone }"
+                   :style="{ width: progressPercent + '%' }"></div>
+            </div>
+          </div>
+
+          <div class="slip-card" :class="{ 'slip-completed': currentSlip.completed }">
+            <div class="slip-header">
+              <div class="slip-title-area">
+                <span class="slip-label">ピッキング伝票</span>
+                <span class="slip-number">No.{{ String(currentSlip.slipNumber).padStart(3, '0') }}</span>
+              </div>
+              <span class="slip-status">{{ currentSlip.completed ? '✓ 完了' : '未処理' }}</span>
+            </div>
+            <div class="slip-items">
+              <div class="slip-item-row slip-item-header">
+                <span class="slip-item-check"></span>
+                <span class="slip-item-seq">#</span>
+                <span class="slip-item-detail"><span class="slip-item-name">商品名</span></span>
+                <span class="slip-item-code">コード</span>
+                <span class="slip-item-qty">数量</span>
+              </div>
+              <div v-for="(task, ti) in currentSlip.tasks" :key="ti"
+                   class="slip-item-row"
+                   :class="{
+                     'slip-item-picked': task.completed && task.found,
+                     'slip-item-missed': task.completed && !task.found
+                   }"
+                   style="cursor:pointer;"
+                   @click="checkTask(ti)">
+                <span class="slip-item-check">
+                  <span v-if="task.completed && task.found" v-html="icons.check"></span>
+                  <span v-else-if="task.completed && !task.found" v-html="icons.x"></span>
+                </span>
+                <span class="slip-item-seq">{{ ti + 1 }}.</span>
+                <span class="slip-item-detail">
+                  <span class="slip-item-name">{{ task.product.name }}</span>
+                </span>
+                <span class="slip-item-code">{{ task.product.code }}</span>
+                <span class="slip-item-qty">{{ task.quantity }}</span>
+              </div>
+            </div>
+            <div class="slip-footer">
+              <span>{{ currentSlip.tasks.length }}品目</span>
+              <span>{{ getSlipProgress(currentSlip) }}</span>
+            </div>
+          </div>
+
+          <div class="slip-nav">
+            <button class="btn btn-secondary slip-nav-btn" :disabled="currentViewIndex <= 0" @click="prevSlip">
+              ◀ 前の伝票
+            </button>
+            <button class="btn btn-secondary slip-nav-btn" :disabled="currentViewIndex >= totalCount - 1" @click="nextSlip">
+              次の伝票 ▶
+            </button>
+          </div>
+
+          <div class="card">
+            <button class="btn btn-primary" @click="goToVerification">検品に進む</button>
+          </div>
+
+          <div class="card">
+            <button class="btn btn-secondary" @click="showCancelModal">練習を中止する</button>
+          </div>
+
+          <div v-if="cancelModal.visible" class="modal-overlay" @click.self="closeCancelModal">
+            <div class="modal-content">
+              <div class="modal-title">練習を中止しますか？</div>
+              <div class="modal-body">
+                <div>現在の進捗は保存されません。練習を中止してホームに戻りますか？</div>
+              </div>
+              <div class="modal-actions">
+                <button class="btn btn-secondary" @click="closeCancelModal">続ける</button>
+                <button class="btn btn-danger" @click="confirmCancel">中止する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+        const actions = inject('actions');
+
+        const currentViewIndex = Vue.ref(0);
+
+        const slips = computed(() => state.practice?.slips || []);
+        const completedCount = computed(() => slips.value.filter(s => s.completed).length);
+        const totalCount = computed(() => slips.value.length);
+        const progressPercent = computed(() =>
+          totalCount.value > 0 ? Math.round((completedCount.value / totalCount.value) * 100) : 0
+        );
+        const allDone = computed(() =>
+          window.PickingTrainer.isAllSlipsCompleted(slips.value)
+        );
+        const currentSlip = computed(() =>
+          slips.value[currentViewIndex.value] || { slipNumber: 0, tasks: [], completed: false }
+        );
+
+        const prevSlip = () => {
+          if (currentViewIndex.value > 0) currentViewIndex.value--;
+        };
+        const nextSlip = () => {
+          if (currentViewIndex.value < totalCount.value - 1) currentViewIndex.value++;
+        };
+
+        const checkTask = (ti) => {
+          actions.toggleSlipItem(currentViewIndex.value, ti);
+        };
+
+        const goToVerification = () => {
+          state.practice.endTime = Date.now();
+          state.currentScreen = 'screen-verification';
+        };
+
+        const cancelModal = Vue.reactive({ visible: false });
+
+        const showCancelModal = () => {
+          cancelModal.visible = true;
+        };
+
+        const closeCancelModal = () => {
+          cancelModal.visible = false;
+        };
+
+        const confirmCancel = () => {
+          cancelModal.visible = false;
+          actions.cancelPractice();
+        };
+
+        const getSlipProgress = (slip) => {
+          const done = slip.tasks.filter(t => t.completed).length;
+          if (done === 0) return '未着手';
+          if (done === slip.tasks.length) return `${done}/${slip.tasks.length} 完了`;
+          return `${done}/${slip.tasks.length} 処理済`;
+        };
+
+        const icons = { check: iconSvg('check'), x: iconSvg('x') };
+
+        return {
+          state, slips, completedCount, totalCount,
+          progressPercent, allDone, currentSlip, currentViewIndex,
+          prevSlip, nextSlip, checkTask,
+          goToVerification, showCancelModal, closeCancelModal, confirmCancel,
+          cancelModal, getSlipProgress, icons
+        };
+      }
+    };
+
+    // ========================================
+    // 結果画面
+    // ========================================
+    const ScreenResult = {
+      template: `
+        <div>
+          <div v-if="isNewBest" class="new-best" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span v-html="icons.trophy"></span> NEW BEST! <span v-html="icons.trophy"></span>
+          </div>
+          <div class="card">
+            <div class="result-summary">
+              <div class="result-ring">
+                <svg viewBox="0 0 160 160">
+                  <circle class="ring-bg" cx="80" cy="80" r="68"/>
+                  <circle class="ring-fill" cx="80" cy="80" r="68"
+                    :stroke="ringColor"
+                    :stroke-dasharray="ringCircumference"
+                    :stroke-dashoffset="ringOffset"/>
+                </svg>
+                <div class="result-ring-inner">
+                  <div class="result-ring-score" :style="{ color: ringColor }">{{ mainScore }}</div>
+                  <div class="result-ring-unit">点</div>
+                </div>
+              </div>
+              <div class="result-score-label">{{ resultLabel }}</div>
+            </div>
+
+            <div class="result-stats">
+              <div class="result-stat-card">
+                <div class="stat-value">{{ slipCount }}<span style="font-size:0.75rem;font-weight:500;color:var(--color-gray-400);">枚</span></div>
+                <div class="stat-label">伝票数</div>
+              </div>
+              <div class="result-stat-card">
+                <div class="stat-value">{{ correctCount }}<span style="font-size:0.75rem;font-weight:500;color:var(--color-gray-400);">/{{ totalTasks }}</span></div>
+                <div class="stat-label">正解数</div>
+              </div>
+              <div class="result-stat-card">
+                <div class="stat-value">{{ durationText }}</div>
+                <div class="stat-label">所要時間</div>
+              </div>
+              <div class="result-stat-card">
+                <div class="stat-value">{{ verifiedText }}</div>
+                <div class="stat-label">検品結果</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" v-if="slipResults.length > 0">
+            <div class="result-slips-title">
+              <span v-html="icons.barChart"></span> 伝票ごとの正解率
+            </div>
+            <div v-for="slip in slipResults" :key="slip.label" class="result-slip-row">
+              <span class="slip-label">{{ slip.label }}</span>
+              <div class="slip-bar-wrap">
+                <div class="slip-bar-fill" :class="slip.barClass" :style="{ width: slip.percent + '%' }"></div>
+              </div>
+              <span class="slip-score">{{ slip.percent }}%</span>
+            </div>
+          </div>
+
+          <!-- 振り返り -->
+          <div class="card review-section" v-if="reviewSlips.length > 0">
+            <button class="review-toggle" @click="reviewOpen = !reviewOpen">
+              <span style="display:flex;align-items:center;gap:6px;">
+                <span v-html="icons.lightbulb"></span>
+                振り返り — 各タスクの結果を確認
+              </span>
+              <span class="review-toggle-arrow" :class="{ open: reviewOpen }">▼</span>
+            </button>
+
+            <template v-if="reviewOpen">
+              <div v-for="slip in reviewSlips" :key="slip.slipNumber" class="review-slip">
+                <div class="review-slip-header">
+                  <span>伝票{{ slip.slipNumber }}</span>
+                  <span class="review-slip-badge" :class="slip.hasErrors ? 'has-errors' : 'perfect'">
+                    {{ slip.hasErrors ? slip.wrongCount + '件ミス' : '全問正解' }}
+                  </span>
+                </div>
+                <div v-for="(task, ti) in slip.tasks" :key="ti" class="review-task">
+                  <div class="review-task-icon" :class="task.found ? 'correct' : 'wrong'">
+                    <svg v-if="task.found" class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/></svg>
+                    <svg v-else class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                  </div>
+                  <div class="review-task-body">
+                    <div class="review-task-name">{{ task.product.name }}</div>
+                    <div class="review-task-detail">コード: {{ task.product.code }}　数量: {{ task.quantity }}</div>
+                  </div>
+                  <div class="review-task-status" :class="task.found ? 'correct' : 'wrong'">
+                    {{ task.found ? '正解' : '未ピック' }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div class="card">
+            <button class="btn btn-primary" @click="restartPractice">もう一度練習する</button>
+            <button class="btn btn-secondary" @click="state.currentScreen = 'screen-home'">ホームに戻る</button>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+        const actions = inject('actions');
+
+        const reviewOpen = Vue.ref(false);
+
+        const mainScore = computed(() => {
+          return state.practice?.score || 0;
+        });
+
+        // 円形プログレス計算
+        const ringCircumference = 2 * Math.PI * 68;
+
+        const ringOffset = computed(() => {
+          const score = mainScore.value;
+          return ringCircumference - (score / 100) * ringCircumference;
+        });
+
+        const ringColor = computed(() => {
+          const score = mainScore.value;
+          if (score >= 80) return '#22c55e';
+          if (score >= 60) return '#3b82f6';
+          if (score >= 40) return '#f59e0b';
+          return '#ef4444';
+        });
+
+        const resultLabel = computed(() => {
+          const score = mainScore.value;
+          if (score === 100) return 'パーフェクト！';
+          if (score >= 80) return '素晴らしい！';
+          if (score >= 60) return 'よくできました';
+          if (score >= 40) return 'もう少し！';
+          return 'がんばりましょう';
+        });
+
+        // サマリーデータ
+        const summary = computed(() => {
+          const p = state.practice;
+          if (!p) return { correctCount: 0, totalTasks: 0 };
+          return window.PickingTrainer.getSlipsSummary(p.slips);
+        });
+
+        const slipCount = computed(() => state.practice?.slips?.length || 0);
+        const correctCount = computed(() => summary.value.correctCount);
+        const totalTasks = computed(() => summary.value.totalTasks);
+
+        const durationText = computed(() => {
+          const p = state.practice;
+          if (!p || !p.endTime || !p.startTime) return '-';
+          return window.PickingTrainer.formatDuration(p.endTime - p.startTime);
+        });
+
+        const verifiedText = computed(() => {
+          const p = state.practice;
+          if (!p) return '-';
+          if (p.verifiedCount !== null) {
+            return `${p.verifiedCount}/${summary.value.totalTasks}`;
+          }
+          return 'スキップ';
+        });
+
+        // 伝票ごとの結果
+        const slipResults = computed(() => {
+          const p = state.practice;
+          if (!p || !p.slips) return [];
+          return p.slips.map((slip, i) => {
+            const total = slip.tasks.length;
+            const correct = slip.tasks.filter(t => t.found === true).length;
+            const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+            let barClass = 'bar-bad';
+            if (percent >= 80) barClass = 'bar-perfect';
+            else if (percent >= 60) barClass = 'bar-good';
+            else if (percent >= 40) barClass = 'bar-warn';
+            return {
+              label: `伝票${slip.slipNumber}`,
+              correct,
+              total,
+              percent,
+              barClass
+            };
+          });
+        });
+
+        const isNewBest = computed(() => {
+          if (!state.practice?.isNewBest) return false;
+          return true;
+        });
+
+        // 振り返りデータ
+        const reviewSlips = computed(() => {
+          const p = state.practice;
+          if (!p || !p.slips) return [];
+          return p.slips.map(slip => {
+            const wrongCount = slip.tasks.filter(t => t.found !== true).length;
+            return {
+              slipNumber: slip.slipNumber,
+              tasks: slip.tasks,
+              hasErrors: wrongCount > 0,
+              wrongCount
+            };
+          });
+        });
+
+        const restartPractice = () => {
+          actions.startSlipMode();
+        };
+
+        const icons = {
+          trophy: iconSvg('trophy'),
+          barChart: iconSvg('barChart'),
+          lightbulb: iconSvg('lightbulb')
+        };
+
+        return {
+          state,
+          mainScore,
+          ringCircumference,
+          ringOffset,
+          ringColor,
+          resultLabel,
+          slipCount,
+          correctCount,
+          totalTasks,
+          durationText,
+          verifiedText,
+          slipResults,
+          isNewBest,
+          reviewOpen,
+          reviewSlips,
+          restartPractice,
+          icons
+        };
+      }
+    };
+
+    // ========================================
+    // 履歴画面
+    // ========================================
+    const ScreenHistory = {
+      template: `
+        <div>
+          <div v-if="filteredHistory.length === 0" class="card">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.barChart"></span> 練習履歴</div>
+            <div class="empty-state">
+              <div class="icon" v-html="icons.barChartLg"></div>
+              <p>まだ練習記録がありません</p>
+            </div>
+          </div>
+
+          <template v-else>
+            <!-- サマリー統計 -->
+            <div class="card">
+              <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.barChart"></span> 練習履歴</div>
+              <div class="history-summary">
+                <div class="history-summary-card">
+                  <div class="hs-value">{{ stats.count }}<span class="hs-unit">回</span></div>
+                  <div class="hs-label">練習回数</div>
+                </div>
+                <div class="history-summary-card">
+                  <div class="hs-value">{{ stats.avg }}<span class="hs-unit">点</span></div>
+                  <div class="hs-label">平均スコア</div>
+                </div>
+                <div class="history-summary-card">
+                  <div class="hs-value">{{ stats.best }}<span class="hs-unit">点</span></div>
+                  <div class="hs-label">最高スコア</div>
+                </div>
+              </div>
+
+              <!-- スコア推移チャート -->
+              <div class="history-chart" v-if="chartData.length >= 2">
+                <div class="history-chart-title">スコア推移</div>
+                <div class="history-chart-area">
+                  <svg :viewBox="'0 0 ' + chartWidth + ' ' + chartHeight" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                      <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <!-- ガイドライン -->
+                    <line class="chart-guide-line" x1="0" :y1="guideY(100)" :x2="chartWidth" :y2="guideY(100)"/>
+                    <line class="chart-guide-line" x1="0" :y1="guideY(50)" :x2="chartWidth" :y2="guideY(50)"/>
+                    <line class="chart-guide-line" x1="0" :y1="guideY(0)" :x2="chartWidth" :y2="guideY(0)"/>
+                    <text class="chart-guide-label" x="4" :y="guideY(100) - 3">100</text>
+                    <text class="chart-guide-label" x="4" :y="guideY(50) - 3">50</text>
+                    <text class="chart-guide-label" x="4" :y="guideY(0) - 3">0</text>
+                    <!-- エリア塗り -->
+                    <path class="chart-area-fill" :d="areaPath"/>
+                    <!-- ライン -->
+                    <polyline class="chart-line" :points="linePoints"/>
+                    <!-- ドット -->
+                    <circle v-for="(pt, i) in chartPoints" :key="i" class="chart-dot" :cx="pt.x" :cy="pt.y" r="3.5"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- 各履歴 -->
+            <div class="card">
+              <div class="history-rich-list">
+                <div v-for="item in filteredHistory" :key="item.id">
+                  <div class="history-rich-item" @click="toggleDetail(item.id)" :style="{ cursor: item.slipsDetail ? 'pointer' : 'default' }">
+                    <div class="history-score-badge" :class="scoreBadgeClass(item.score)">
+                      {{ item.score }}
+                    </div>
+                    <div class="history-item-body">
+                      <div class="history-item-top">
+                        <span class="history-item-score">{{ item.correct }}/{{ item.total }}問正解</span>
+                        <span class="history-item-date">{{ formatDate(item.date) }}</span>
+                      </div>
+                      <div class="history-item-meta">
+                        <span>{{ item.slipCount || '?' }}枚</span>
+                        <span>{{ formatDuration(item.duration) }}</span>
+                        <span v-if="item.slipsDetail" style="color:var(--color-primary);font-weight:600;">{{ openDetailId === item.id ? '▲ 閉じる' : '▼ 詳細' }}</span>
+                      </div>
+                      <div class="history-item-bar-wrap">
+                        <div class="history-item-bar" :class="scoreBadgeClass(item.score)" :style="{ width: item.score + '%' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 振り返り詳細 -->
+                  <div v-if="openDetailId === item.id && item.slipsDetail" class="review-section" style="margin-top:6px;margin-bottom:10px;">
+                    <div v-for="slip in item.slipsDetail" :key="slip.slipNumber" class="review-slip">
+                      <div class="review-slip-header">
+                        <span>伝票{{ slip.slipNumber }}</span>
+                        <span class="review-slip-badge" :class="slipHasErrors(slip) ? 'has-errors' : 'perfect'">
+                          {{ slipHasErrors(slip) ? slipWrongCount(slip) + '件ミス' : '全問正解' }}
+                        </span>
+                      </div>
+                      <div v-for="(task, ti) in slip.tasks" :key="ti" class="review-task">
+                        <div class="review-task-icon" :class="task.found ? 'correct' : 'wrong'">
+                          <svg v-if="task.found" class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/></svg>
+                          <svg v-else class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                        </div>
+                        <div class="review-task-body">
+                          <div class="review-task-name">{{ task.name }}</div>
+                          <div class="review-task-detail">コード: {{ task.code }}　数量: {{ task.quantity }}</div>
+                        </div>
+                        <div class="review-task-status" :class="task.found ? 'correct' : 'wrong'">
+                          {{ task.found ? '正解' : '未ピック' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <div class="card">
+            <button class="btn btn-secondary" @click="state.currentScreen = 'screen-home'">戻る</button>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+
+        const filteredHistory = computed(() => {
+          const history = state.history.filter(h => h.userId === state.currentUser?.id);
+          return history.sort((a, b) => new Date(b.date) - new Date(a.date));
+        });
+
+        // サマリー統計
+        const stats = computed(() => {
+          const list = filteredHistory.value;
+          if (list.length === 0) return { count: 0, avg: 0, best: 0 };
+          const scores = list.map(h => h.score);
+          return {
+            count: list.length,
+            avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+            best: Math.max(...scores)
+          };
+        });
+
+        // スコア推移チャート（新しい順→古い順に反転して表示）
+        const chartWidth = 300;
+        const chartHeight = 160;
+        const chartPadding = { top: 16, bottom: 12, left: 24, right: 8 };
+
+        const chartData = computed(() => {
+          // 古い順に最大20件
+          return [...filteredHistory.value].reverse().slice(-20);
+        });
+
+        const chartPoints = computed(() => {
+          const data = chartData.value;
+          if (data.length < 2) return [];
+          const w = chartWidth - chartPadding.left - chartPadding.right;
+          const h = chartHeight - chartPadding.top - chartPadding.bottom;
+          const step = w / (data.length - 1);
+          return data.map((item, i) => ({
+            x: chartPadding.left + i * step,
+            y: chartPadding.top + h - (item.score / 100) * h
+          }));
+        });
+
+        const linePoints = computed(() => {
+          return chartPoints.value.map(pt => `${pt.x},${pt.y}`).join(' ');
+        });
+
+        const areaPath = computed(() => {
+          const pts = chartPoints.value;
+          if (pts.length < 2) return '';
+          const bottom = chartHeight - chartPadding.bottom;
+          let d = `M${pts[0].x},${bottom}`;
+          pts.forEach(pt => { d += ` L${pt.x},${pt.y}`; });
+          d += ` L${pts[pts.length - 1].x},${bottom} Z`;
+          return d;
+        });
+
+        const guideY = (score) => {
+          const h = chartHeight - chartPadding.top - chartPadding.bottom;
+          return chartPadding.top + h - (score / 100) * h;
+        };
+
+        const scoreBadgeClass = (score) => {
+          if (score >= 80) return 'badge-perfect';
+          if (score >= 60) return 'badge-good';
+          if (score >= 40) return 'badge-warn';
+          return 'badge-bad';
+        };
+
+        // 振り返り詳細の開閉
+        const openDetailId = Vue.ref(null);
+
+        const toggleDetail = (id) => {
+          openDetailId.value = openDetailId.value === id ? null : id;
+        };
+
+        const slipHasErrors = (slip) => {
+          return slip.tasks.some(t => t.found !== true);
+        };
+
+        const slipWrongCount = (slip) => {
+          return slip.tasks.filter(t => t.found !== true).length;
+        };
+
+        const formatDate = (isoString) => {
+          return window.PickingTrainer.formatDate(isoString);
+        };
+
+        const formatDuration = (ms) => {
+          return window.PickingTrainer.formatDuration(ms);
+        };
+
+        const icons = {
+          barChart: iconSvg('barChart'),
+          barChartLg: iconSvg('barChart', 'icon-empty')
+        };
+
+        return {
+          state, filteredHistory, stats,
+          chartWidth, chartHeight, chartData, chartPoints, linePoints, areaPath, guideY,
+          scoreBadgeClass, openDetailId, toggleDetail, slipHasErrors, slipWrongCount,
+          formatDate, formatDuration, icons
+        };
+      }
+    };
+
+    // ========================================
+    // 商品管理画面
+    // ========================================
+    const ScreenProducts = {
+      template: `
+        <div>
+          <div class="card">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.package"></span> 商品マスタ</div>
+            <div class="tabs">
+              <button class="tab" :class="{ active: state.productTab === 'list' }" @click="state.productTab = 'list'">
+                一覧
+              </button>
+              <button class="tab" :class="{ active: state.productTab === 'add' }" @click="state.productTab = 'add'">
+                追加
+              </button>
+            </div>
+
+            <!-- 一覧 -->
+            <div v-if="state.productTab === 'list'">
+              <div v-if="state.products.length === 0" class="empty-state">
+                <div class="icon" v-html="icons.packageLg"></div>
+                <p>商品がありません<br>「追加」タブから登録してください</p>
+              </div>
+              <div v-else class="product-list">
+                <div v-for="product in state.products" :key="product.code" class="product-item" :class="{ 'out-of-stock': (product.stock ?? 99) === 0 }">
+                  <div class="info">
+                    <div class="name">{{ product.name }}</div>
+                    <div class="code">{{ product.code }}</div>
+                  </div>
+                  <div class="stock-control">
+                    <button class="stock-btn" @click="updateStock(product, -1)">−</button>
+                    <span class="stock-value" :class="{ 'out-of-stock': (product.stock ?? 99) === 0 }">{{ product.stock ?? 99 }}</span>
+                    <button class="stock-btn" @click="updateStock(product, 1)">+</button>
+                  </div>
+                  <button class="icon-btn delete" @click="deleteProduct(product.code)"><span v-html="icons.trash"></span></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 追加 -->
+            <div v-if="state.productTab === 'add'">
+              <div class="alert alert-info">
+                <span v-html="icons.lightbulb" style="display:inline;"></span> バーコードをスキャンするとコードが自動入力されます
+              </div>
+              <div id="product-scanner-container"></div>
+              <button class="btn btn-secondary btn-small" @click="toggleProductScanner">
+                <span v-html="productScannerActive ? icons.squareStop : icons.camera"></span> {{ productScannerActive ? 'スキャンを停止' : 'バーコードスキャン' }}
+              </button>
+              <div class="input-group" style="margin-top: 16px;">
+                <label>商品コード</label>
+                <input type="text" v-model="newProduct.code" placeholder="例：4901234567890">
+              </div>
+              <div class="input-group">
+                <label>商品名</label>
+                <input type="text" v-model="newProduct.name" placeholder="例：お茶500ml">
+              </div>
+              <div class="input-group">
+                <label>在庫数</label>
+                <input type="number" v-model.number="newProduct.stock" min="0" placeholder="例：10">
+              </div>
+              <button class="btn btn-primary" @click="addProduct">商品を追加</button>
+            </div>
+
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.folder"></span> データ管理</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-secondary" @click="exportData" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;"><span v-html="icons.download"></span> エクスポート</button>
+              <button class="btn btn-secondary" @click="triggerImport" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;"><span v-html="icons.upload"></span> インポート</button>
+            </div>
+            <input type="file" ref="importFileInput" accept=".json" style="display:none" @change="importData">
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+        const actions = inject('actions');
+        const showNotify = inject('showNotify');
+        const newProduct = Vue.reactive({ code: '', name: '', stock: 10 });
+        const productScannerActive = Vue.ref(false);
+        const importFileInput = Vue.ref(null);
+        let productScanner = null;
+
+        const addProduct = () => {
+          if (!newProduct.code || !newProduct.name) {
+            showNotify('入力エラー', 'すべての項目を入力してください。');
+            return;
+          }
+
+          if (state.products.find(p => p.code === newProduct.code)) {
+            showNotify('登録エラー', '同じ商品コードが既に登録されています。');
+            return;
+          }
+
+          state.products.push({ ...newProduct });
+          newProduct.code = '';
+          newProduct.name = '';
+          newProduct.stock = 10;
+          showNotify('追加完了', '商品を追加しました。');
+          state.productTab = 'list';
+        };
+
+        const deleteProduct = (code) => {
+          if (!confirm('この商品を削除しますか？')) return;
+          const index = state.products.findIndex(p => p.code === code);
+          if (index !== -1) {
+            state.products.splice(index, 1);
+          }
+        };
+
+        const updateStock = (product, delta) => {
+          const current = product.stock ?? 99;
+          const newStock = Math.max(0, current + delta);
+          product.stock = newStock;
+        };
+
+        const toggleProductScanner = () => {
+          if (productScanner) {
+            productScanner.stop().then(() => {
+              productScanner = null;
+              productScannerActive.value = false;
+            }).catch(console.error);
+            return;
+          }
+
+          productScannerActive.value = true;
+          productScanner = new Html5Qrcode('product-scanner-container');
+          productScanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 250, height: 100 } },
+            (decodedText) => {
+              newProduct.code = decodedText;
+              productScanner.stop().then(() => {
+                productScanner = null;
+                productScannerActive.value = false;
+              });
+            },
+            () => {}
+          ).catch(err => {
+            console.error('スキャナー起動エラー:', err);
+            showNotify('カメラエラー', 'カメラを起動できませんでした。カメラのアクセス許可を確認してください。');
+            productScannerActive.value = false;
+          });
+        };
+
+        const exportData = () => {
+          const data = {
+            users: state.users,
+            products: state.products,
+            history: state.history,
+            exportedAt: new Date().toISOString()
+          };
+
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `picking-data-${new Date().toISOString().split('T')[0]}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        const triggerImport = () => {
+          importFileInput.value.click();
+        };
+
+        const importData = (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const data = JSON.parse(e.target.result);
+              if (data.products) {
+                const migrated = window.PickingTrainer.migrateProducts(data.products);
+                const newProducts = migrated.filter(
+                  p => !state.products.find(ep => ep.code === p.code)
+                );
+                if (newProducts.length > 0) {
+                  state.products.push(...newProducts);
+                }
+              }
+              showNotify('インポート完了', 'データをインポートしました。');
+            } catch (err) {
+              showNotify('インポートエラー', 'ファイルの読み込みに失敗しました。');
+              console.error(err);
+            }
+          };
+          reader.readAsText(file);
+          event.target.value = '';
+        };
+
+        onBeforeUnmount(() => {
+          if (productScanner) {
+            productScanner.stop().catch(console.error);
+          }
+        });
+
+        const icons = {
+          package: iconSvg('package'),
+          packageLg: iconSvg('package', 'icon-empty'),
+          trash: iconSvg('trash'),
+          lightbulb: iconSvg('lightbulb'),
+          camera: iconSvg('camera'),
+          squareStop: iconSvg('squareStop'),
+          folder: iconSvg('folder'),
+          download: iconSvg('download'),
+          upload: iconSvg('upload')
+        };
+
+        return {
+          state,
+          newProduct,
+          productScannerActive,
+          importFileInput,
+          addProduct,
+          deleteProduct,
+          updateStock,
+          toggleProductScanner,
+          exportData,
+          triggerImport,
+          importData,
+          icons
+        };
+      }
+    };
+
+    // ========================================
+    // 設定画面
+    // ========================================
+    const ScreenSettings = {
+      template: `
+        <div>
+          <div class="card" v-if="users.length > 0">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.user"></span> ユーザー個別削除</div>
+            <div class="user-list">
+              <div v-for="user in users" :key="user.id" class="user-item" style="cursor:default;">
+                <div style="flex:1;min-width:0;">
+                  <div class="name">{{ user.name }}</div>
+                  <div class="stats">練習回数: {{ getUserStats(user.id).count }}回</div>
+                </div>
+                <button class="icon-btn delete" @click="deleteUser(user.id, user.name)" style="flex-shrink:0;"><span v-html="icons.trash"></span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.trash"></span> データ一括削除</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-secondary" @click="clearUsers" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;">
+                <span v-html="icons.user"></span> ユーザーデータをすべて削除
+              </button>
+              <button class="btn btn-secondary" @click="clearProducts" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;">
+                <span v-html="icons.package"></span> 商品データをすべて削除
+              </button>
+              <button class="btn btn-danger" @click="clearAllData" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;">
+                <span v-html="icons.trash"></span> すべてのデータを削除
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span v-html="icons.smartphone"></span> このアプリについて</div>
+            <p style="color: var(--color-gray-500); font-size: 0.875rem; line-height: 1.6;">
+              ピッキング練習トレーナーは、倉庫作業のピッキング練習を支援するWebアプリです。
+              商品を登録して、ピッキング作業の練習と検品の訓練ができます。
+            </p>
+          </div>
+        </div>
+      `,
+      setup() {
+        const state = inject('appState');
+
+        const users = computed(() => state.users);
+
+        const getUserStats = (userId) => {
+          const userHistory = state.history.filter(h => h.userId === userId);
+          return { count: userHistory.length };
+        };
+
+        const deleteUser = (userId, userName) => {
+          if (!confirm(`「${userName}」を削除しますか？\nこのユーザーの練習履歴も削除されます。`)) return;
+
+          state.users = state.users.filter(u => u.id !== userId);
+          state.history = state.history.filter(h => h.userId !== userId);
+
+          if (state.currentUser && state.currentUser.id === userId) {
+            state.currentUser = null;
+            localStorage.removeItem(STORAGE_KEYS.currentUser);
+            state.currentScreen = 'screen-user-select';
+          }
+        };
+
+        const clearUsers = () => {
+          if (!confirm('ユーザーデータをすべて削除しますか？\nユーザー情報と練習履歴が削除されます。\nこの操作は元に戻せません。')) return;
+
+          localStorage.removeItem(STORAGE_KEYS.users);
+          localStorage.removeItem(STORAGE_KEYS.history);
+          localStorage.removeItem(STORAGE_KEYS.currentUser);
+
+          location.reload();
+        };
+
+        const clearProducts = () => {
+          if (!confirm('商品データをすべて削除しますか？\n登録済みの商品がすべて削除されます。\nこの操作は元に戻せません。')) return;
+
+          localStorage.removeItem(STORAGE_KEYS.products);
+
+          state.products = [];
+        };
+
+        const clearAllData = () => {
+          if (!confirm('すべてのデータを削除しますか？\nこの操作は元に戻せません。')) return;
+          if (!confirm('本当に削除しますか？')) return;
+
+          localStorage.removeItem(STORAGE_KEYS.users);
+          localStorage.removeItem(STORAGE_KEYS.products);
+          localStorage.removeItem(STORAGE_KEYS.history);
+          localStorage.removeItem(STORAGE_KEYS.currentUser);
+          localStorage.removeItem(STORAGE_KEYS.settings);
+
+          location.reload();
+        };
+
+        const icons = {
+          settings: iconSvg('settings'),
+          trash: iconSvg('trash'),
+          user: iconSvg('user'),
+          package: iconSvg('package'),
+          smartphone: iconSvg('smartphone')
+        };
+
+        return { users, getUserStats, deleteUser, clearUsers, clearProducts, clearAllData, icons };
+      }
+    };
+
+    // ========================================
+    // メインアプリ
+    // ========================================
+    const App = {
+      components: {
+        'app-header': AppHeader,
+        'bottom-nav': BottomNav,
+        'side-nav': SideNav,
+        'screen-user-select': ScreenUserSelect,
+        'screen-home': ScreenHome,
+        'screen-verification': ScreenVerification,
+        'screen-slip-list': ScreenSlipList,
+        'screen-result': ScreenResult,
+        'screen-history': ScreenHistory,
+        'screen-products': ScreenProducts,
+        'screen-settings': ScreenSettings
+      },
+      setup() {
+        // アプリケーション状態
+        const state = reactive({
+          currentScreen: 'screen-user-select',
+          currentUser: null,
+          users: [],
+          products: [],
+          history: [],
+          slipCount: 3,
+          itemsPerSlip: 5,
+          practice: null,
+          productTab: 'list'
+        });
+
+        // LocalStorageから読み込み
+        const loadFromStorage = () => {
+          try {
+            const users = localStorage.getItem(STORAGE_KEYS.users);
+            if (users) state.users = JSON.parse(users);
+
+            const products = localStorage.getItem(STORAGE_KEYS.products);
+            if (products) state.products = window.PickingTrainer.migrateProducts(JSON.parse(products));
+
+            let history = localStorage.getItem(STORAGE_KEYS.history);
+            if (history) {
+              history = JSON.parse(history);
+              history = window.PickingTrainer.migrateHistory(history);
+              history = window.PickingTrainer.trimHistory(history);
+              state.history = history;
+            }
+
+            const currentUser = localStorage.getItem(STORAGE_KEYS.currentUser);
+            if (currentUser) {
+              const user = JSON.parse(currentUser);
+              const found = state.users.find(u => u.id === user.id);
+              if (found) {
+                state.currentUser = found;
+                state.currentScreen = 'screen-home';
+              }
+            }
+
+            const settings = localStorage.getItem(STORAGE_KEYS.settings);
+            if (settings) {
+              const s = JSON.parse(settings);
+              state.slipCount = s.slipCount || 3;
+              state.itemsPerSlip = s.itemsPerSlip || 5;
+            }
+          } catch (e) {
+            console.error('データ読み込みエラー:', e);
+          }
+        };
+
+        // LocalStorageに保存
+        watch(() => state.users, (val) => {
+          localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(val));
+        }, { deep: true });
+
+        watch(() => state.products, (val) => {
+          localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(val));
+        }, { deep: true });
+
+        watch(() => state.history, (val) => {
+          const trimmed = window.PickingTrainer.trimHistory(val);
+          localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(trimmed));
+        }, { deep: true });
+
+        watch(() => state.currentUser, (val) => {
+          localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(val));
+        });
+
+        watch(() => ({
+          slipCount: state.slipCount,
+          itemsPerSlip: state.itemsPerSlip
+        }), (val) => {
+          localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(val));
+        }, { deep: true });
+
+        // アクション
+        const actions = {
+          startSlipMode() {
+            const slips = window.PickingTrainer.generateSlips(
+              state.products,
+              state.slipCount,
+              state.itemsPerSlip
+            );
+            state.practice = {
+              slips: slips,
+              currentSlipIndex: null,
+              currentTaskIndex: 0,
+              startTime: Date.now(),
+              endTime: null,
+              verifiedCount: null
+            };
+            state.currentScreen = 'screen-slip-list';
+          },
+
+          toggleSlipItem(slipIndex, taskIndex) {
+            if (!state.practice) return;
+
+            const slip = state.practice.slips[slipIndex];
+            if (!slip) return;
+            const task = slip.tasks[taskIndex];
+            if (!task) return;
+
+            if (task.completed) {
+              // 取り消し
+              task.completed = false;
+              task.found = null;
+              slip.completed = false;
+            } else {
+              // チェック
+              task.completed = true;
+              task.found = true;
+              if (slip.tasks.every(t => t.completed)) {
+                slip.completed = true;
+              }
+            }
+          },
+
+          showSlipResult() {
+            if (!state.practice) return;
+
+            const summary = window.PickingTrainer.getSlipsSummary(state.practice.slips);
+            const score = summary.totalTasks > 0
+              ? Math.round((summary.correctCount / summary.totalTasks) * 100)
+              : 0;
+
+            state.practice.score = score;
+            state.practice.correctCount = summary.correctCount;
+            state.practice.totalTasks = summary.totalTasks;
+
+            const bestScore = window.PickingTrainer.getBestScore(
+              state.history,
+              state.currentUser.id,
+              'slip'
+            );
+            state.practice.isNewBest = bestScore === null || score > bestScore;
+
+            // 振り返り用にタスク詳細を保存
+            const slipsDetail = state.practice.slips.map(slip => ({
+              slipNumber: slip.slipNumber,
+              tasks: slip.tasks.map(t => ({
+                name: t.product.name,
+                code: t.product.code,
+                quantity: t.quantity,
+                found: t.found
+              }))
+            }));
+
+            state.history.push({
+              id: Date.now().toString(),
+              userId: state.currentUser.id,
+              date: new Date().toISOString(),
+              mode: 'slip',
+              score: score,
+              correct: summary.correctCount,
+              total: summary.totalTasks,
+              duration: state.practice.endTime - state.practice.startTime,
+              verified: state.practice.verifiedCount,
+              slipCount: state.practice.slips.length,
+              itemsPerSlip: state.practice.slips[0]?.tasks.length || 0,
+              slipsDetail: slipsDetail
+            });
+
+            state.currentScreen = 'screen-result';
+          },
+
+          cancelPractice() {
+            state.practice = null;
+            state.currentScreen = 'screen-home';
+          }
+        };
+
+        // 初期化（マウント前に同期実行し、空状態の描画を防止）
+        loadFromStorage();
+
+        // 通知モーダル
+        const notify = reactive({ visible: false, title: '', message: '' });
+
+        const showNotify = (title, message) => {
+          notify.title = title;
+          notify.message = message;
+          notify.visible = true;
+        };
+
+        const closeNotify = () => {
+          notify.visible = false;
+        };
+
+        // 状態とアクションを提供
+        provide('appState', state);
+        provide('actions', actions);
+        provide('showNotify', showNotify);
+
+        const isPracticing = computed(() => {
+          const screen = state.currentScreen;
+          return screen === 'screen-verification' || screen === 'screen-slip-list';
+        });
+
+        return { state, isPracticing, notify, closeNotify };
+      }
+    };
+
+    createApp(App).mount('#app');
+  </script>
+</body>
+</html>
