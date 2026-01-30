@@ -1791,6 +1791,11 @@
     <div class="app-layout">
       <side-nav v-if="state.currentUser && !isPracticing"></side-nav>
 
+      <nav v-if="!state.currentUser" class="side-nav">
+        <a href="about.html" class="side-nav-item" style="text-decoration:none;">About</a>
+        <a href="guide.html" class="side-nav-item" style="text-decoration:none;">ガイド</a>
+      </nav>
+
       <main class="main-content">
         <div class="container">
           <div class="screen-container">
@@ -1803,6 +1808,11 @@
     </div>
 
     <bottom-nav v-if="state.currentUser && !isPracticing"></bottom-nav>
+
+    <nav v-if="!state.currentUser" class="bottom-nav">
+      <a href="about.html" class="nav-item" style="text-decoration:none;">About</a>
+      <a href="guide.html" class="nav-item" style="text-decoration:none;">ガイド</a>
+    </nav>
 
     <footer v-if="!isPracticing" class="site-footer">
       ピッキング練習トレーナー
@@ -2188,14 +2198,6 @@
       template: `
         <div>
           <div class="card">
-            <div class="card-title"><span v-html="icons.camera"></span> バーコードで検品</div>
-            <div id="scanner-container"></div>
-            <button class="btn btn-secondary" @click="toggleScanner">
-              <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
-            </button>
-          </div>
-
-          <div class="card">
             <div class="card-title"><span v-html="icons.circleCheck"></span> 検品リスト</div>
             <div class="verification-list">
               <div v-for="(task, index) in tasks" :key="index"
@@ -2208,6 +2210,14 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span v-html="icons.camera"></span> バーコードで検品</div>
+            <div id="scanner-container"></div>
+            <button class="btn btn-secondary" @click="toggleScanner">
+              <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
+            </button>
           </div>
 
           <div class="card">
