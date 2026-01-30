@@ -1482,7 +1482,7 @@
 
     /* アプリレイアウト */
     .app-layout {
-      display: flex;
+      display: block;
     }
 
     /* サイドナビ（デフォルト非表示） */
@@ -1494,6 +1494,10 @@
        レスポンシブ: タブレット (768px以上)
        ============================================= */
     @media (min-width: 768px) {
+      .app-layout {
+        display: flex;
+      }
+
       .container {
         max-width: 100%;
         padding: 24px;
@@ -1835,6 +1839,18 @@
         <div class="modal-body">{{ notify.message }}</div>
         <div class="modal-actions">
           <button class="btn btn-primary" @click="closeNotify">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- グローバル確認モーダル -->
+    <div v-if="confirmModal.visible" class="modal-overlay" @click.self="cancelConfirm">
+      <div class="modal-content">
+        <div class="modal-title">{{ confirmModal.title }}</div>
+        <div class="modal-body" style="white-space:pre-line;">{{ confirmModal.message }}</div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" @click="cancelConfirm">キャンセル</button>
+          <button class="btn btn-danger" @click="okConfirm">{{ confirmModal.okLabel }}</button>
         </div>
       </div>
     </div>
@@ -3013,7 +3029,8 @@
         const state = inject('appState');
         const actions = inject('actions');
         const showNotify = inject('showNotify');
-        const newProduct = Vue.reactive({ code: '', name: '', stock: 10 });
+        const showConfirm = inject('showConfirm');
+        const newProduct = Vue.reactive({ code: '', name: '', stock: '' });
         const productScannerActive = Vue.ref(false);
         const importFileInput = Vue.ref(null);
         let productScanner = null;
@@ -3032,13 +3049,13 @@
           state.products.push({ ...newProduct });
           newProduct.code = '';
           newProduct.name = '';
-          newProduct.stock = 10;
+          newProduct.stock = '';
           showNotify('追加完了', '商品を追加しました。');
           state.productTab = 'list';
         };
 
-        const deleteProduct = (code) => {
-          if (!confirm('この商品を削除しますか？')) return;
+        const deleteProduct = async (code) => {
+          if (!await showConfirm('商品の削除', 'この商品を削除しますか？')) return;
           const index = state.products.findIndex(p => p.code === code);
           if (index !== -1) {
             state.products.splice(index, 1);
@@ -3212,6 +3229,7 @@
       `,
       setup() {
         const state = inject('appState');
+        const showConfirm = inject('showConfirm');
 
         const users = computed(() => state.users);
 
@@ -3220,8 +3238,8 @@
           return { count: userHistory.length };
         };
 
-        const deleteUser = (userId, userName) => {
-          if (!confirm(`「${userName}」を削除しますか？\nこのユーザーの練習履歴も削除されます。`)) return;
+        const deleteUser = async (userId, userName) => {
+          if (!await showConfirm('ユーザーの削除', `「${userName}」を削除しますか？\nこのユーザーの練習履歴も削除されます。`)) return;
 
           state.users = state.users.filter(u => u.id !== userId);
           state.history = state.history.filter(h => h.userId !== userId);
@@ -3233,8 +3251,8 @@
           }
         };
 
-        const clearUsers = () => {
-          if (!confirm('ユーザーデータをすべて削除しますか？\nユーザー情報と練習履歴が削除されます。\nこの操作は元に戻せません。')) return;
+        const clearUsers = async () => {
+          if (!await showConfirm('全ユーザー削除', 'ユーザーデータをすべて削除しますか？\nユーザー情報と練習履歴が削除されます。\nこの操作は元に戻せません。')) return;
 
           localStorage.removeItem(STORAGE_KEYS.users);
           localStorage.removeItem(STORAGE_KEYS.history);
@@ -3243,17 +3261,17 @@
           location.reload();
         };
 
-        const clearProducts = () => {
-          if (!confirm('商品データをすべて削除しますか？\n登録済みの商品がすべて削除されます。\nこの操作は元に戻せません。')) return;
+        const clearProducts = async () => {
+          if (!await showConfirm('全商品削除', '商品データをすべて削除しますか？\n登録済みの商品がすべて削除されます。\nこの操作は元に戻せません。')) return;
 
           localStorage.removeItem(STORAGE_KEYS.products);
 
           state.products = [];
         };
 
-        const clearAllData = () => {
-          if (!confirm('すべてのデータを削除しますか？\nこの操作は元に戻せません。')) return;
-          if (!confirm('本当に削除しますか？')) return;
+        const clearAllData = async () => {
+          if (!await showConfirm('全データ削除', 'すべてのデータを削除しますか？\nこの操作は元に戻せません。')) return;
+          if (!await showConfirm('最終確認', '本当に削除しますか？\nこの操作は取り消せません。')) return;
 
           localStorage.removeItem(STORAGE_KEYS.users);
           localStorage.removeItem(STORAGE_KEYS.products);
@@ -3482,17 +3500,41 @@
           notify.visible = false;
         };
 
+        // 確認モーダル
+        const confirmModal = reactive({ visible: false, title: '', message: '', okLabel: '削除', resolve: null });
+
+        const showConfirm = (title, message, okLabel = '削除') => {
+          return new Promise((resolve) => {
+            confirmModal.title = title;
+            confirmModal.message = message;
+            confirmModal.okLabel = okLabel;
+            confirmModal.resolve = resolve;
+            confirmModal.visible = true;
+          });
+        };
+
+        const okConfirm = () => {
+          confirmModal.visible = false;
+          if (confirmModal.resolve) confirmModal.resolve(true);
+        };
+
+        const cancelConfirm = () => {
+          confirmModal.visible = false;
+          if (confirmModal.resolve) confirmModal.resolve(false);
+        };
+
         // 状態とアクションを提供
         provide('appState', state);
         provide('actions', actions);
         provide('showNotify', showNotify);
+        provide('showConfirm', showConfirm);
 
         const isPracticing = computed(() => {
           const screen = state.currentScreen;
           return screen === 'screen-verification' || screen === 'screen-slip-list';
         });
 
-        return { state, isPracticing, notify, closeNotify };
+        return { state, isPracticing, notify, closeNotify, confirmModal, okConfirm, cancelConfirm };
       }
     };
 
