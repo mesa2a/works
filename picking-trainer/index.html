@@ -2198,6 +2198,14 @@
       template: `
         <div>
           <div class="card">
+            <div class="card-title"><span v-html="icons.camera"></span> バーコードで検品</div>
+            <div id="scanner-container"></div>
+            <button class="btn btn-secondary" @click="toggleScanner">
+              <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
+            </button>
+          </div>
+
+          <div class="card">
             <div class="card-title"><span v-html="icons.circleCheck"></span> 検品リスト</div>
             <div class="verification-list">
               <div v-for="(task, index) in tasks" :key="index"
@@ -2210,14 +2218,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title"><span v-html="icons.camera"></span> バーコードで検品</div>
-            <div id="scanner-container"></div>
-            <button class="btn btn-secondary" @click="toggleScanner">
-              <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
-            </button>
           </div>
 
           <div class="card">
@@ -2248,6 +2248,10 @@
           }
 
           scannerActive.value = true;
+          Vue.nextTick(() => {
+            const el = document.getElementById('scanner-container');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
           scanner = new Html5Qrcode('scanner-container');
           scanner.start(
             { facingMode: 'environment' },
@@ -3047,6 +3051,10 @@
           }
 
           productScannerActive.value = true;
+          Vue.nextTick(() => {
+            const el = document.getElementById('product-scanner-container');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
           productScanner = new Html5Qrcode('product-scanner-container');
           productScanner.start(
             { facingMode: 'environment' },
