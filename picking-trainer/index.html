@@ -70,6 +70,7 @@
       max-width: 600px;
       margin: 0 auto;
       padding: 16px;
+      overflow-x: hidden;
     }
 
     /* ヘッダー */
@@ -118,9 +119,11 @@
       background: var(--color-white);
       border-radius: var(--radius-md);
       padding: 20px;
-      margin-bottom: 12px;
+      margin: 0 auto 12px;
+      max-width: 600px;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--color-gray-200);
+      overflow: hidden;
     }
 
     .card-title {
@@ -1062,7 +1065,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 6px 20px;
+      justify-content: center;
+      padding: 6px 12px;
       color: var(--color-gray-400);
       text-decoration: none;
       font-size: 0.6875rem;
@@ -1073,6 +1077,7 @@
       min-height: 48px;
       transition: color 0.15s;
       letter-spacing: 0.02em;
+      flex: 1;
     }
 
     .nav-item.active {
@@ -1093,6 +1098,11 @@
       text-align: center;
       padding: 40px 20px;
       color: var(--color-gray-400);
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .empty-state .icon {
