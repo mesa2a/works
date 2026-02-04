@@ -656,6 +656,143 @@
       });
     });
 
+    // =============================================
+    // Phase 伝票ごと検品: getSlipVerificationSummary のテスト
+    // =============================================
+    describe('getSlipVerificationSummary', () => {
+      it('全伝票の検品サマリーを正しく返す', () => {
+        const slips = [
+          {
+            slipNumber: 1,
+            verifiedCount: 3,
+            tasks: [
+              { product: { code: 'P1' }, quantity: 1, verified: true },
+              { product: { code: 'P2' }, quantity: 1, verified: true },
+              { product: { code: 'P3' }, quantity: 1, verified: true },
+            ]
+          },
+          {
+            slipNumber: 2,
+            verifiedCount: 1,
+            tasks: [
+              { product: { code: 'P4' }, quantity: 1, verified: true },
+              { product: { code: 'P5' }, quantity: 1, verified: false },
+            ]
+          },
+        ];
+        const summary = PT.getSlipVerificationSummary(slips);
+        expect(summary.totalVerified).to.equal(4);
+        expect(summary.totalTasks).to.equal(5);
+        expect(summary.slipsVerified).to.equal(2);
+        expect(summary.slipsTotal).to.equal(2);
+      });
+
+      it('検品されていない伝票はカウントしない', () => {
+        const slips = [
+          {
+            slipNumber: 1,
+            verifiedCount: 2,
+            tasks: [
+              { product: { code: 'P1' }, quantity: 1, verified: true },
+              { product: { code: 'P2' }, quantity: 1, verified: true },
+            ]
+          },
+          {
+            slipNumber: 2,
+            verifiedCount: null,  // 未検品
+            tasks: [
+              { product: { code: 'P3' }, quantity: 1, verified: false },
+            ]
+          },
+        ];
+        const summary = PT.getSlipVerificationSummary(slips);
+        expect(summary.slipsVerified).to.equal(1);
+        expect(summary.slipsSkipped).to.equal(1);
+      });
+
+      it('空の伝票配列で 0 を返す', () => {
+        const summary = PT.getSlipVerificationSummary([]);
+        expect(summary.totalVerified).to.equal(0);
+        expect(summary.totalTasks).to.equal(0);
+        expect(summary.slipsVerified).to.equal(0);
+        expect(summary.slipsTotal).to.equal(0);
+      });
+
+      it('各伝票ごとの検品率を配列で返す', () => {
+        const slips = [
+          {
+            slipNumber: 1,
+            verifiedCount: 2,
+            tasks: [
+              { product: { code: 'P1' }, quantity: 1, verified: true },
+              { product: { code: 'P2' }, quantity: 1, verified: true },
+            ]
+          },
+          {
+            slipNumber: 2,
+            verifiedCount: 1,
+            tasks: [
+              { product: { code: 'P3' }, quantity: 1, verified: true },
+              { product: { code: 'P4' }, quantity: 1, verified: false },
+            ]
+          },
+        ];
+        const summary = PT.getSlipVerificationSummary(slips);
+        expect(summary.slipDetails).to.have.length(2);
+        expect(summary.slipDetails[0].verifiedCount).to.equal(2);
+        expect(summary.slipDetails[0].totalTasks).to.equal(2);
+        expect(summary.slipDetails[0].percent).to.equal(100);
+        expect(summary.slipDetails[1].verifiedCount).to.equal(1);
+        expect(summary.slipDetails[1].totalTasks).to.equal(2);
+        expect(summary.slipDetails[1].percent).to.equal(50);
+      });
+
+      it('verifiedCount が null の伝票はスキップとして扱う', () => {
+        const slips = [
+          {
+            slipNumber: 1,
+            verifiedCount: null,
+            tasks: [
+              { product: { code: 'P1' }, quantity: 1, verified: false },
+            ]
+          },
+        ];
+        const summary = PT.getSlipVerificationSummary(slips);
+        expect(summary.slipDetails[0].status).to.equal('skipped');
+      });
+
+      it('verifiedCount が数値の伝票は検品済みとして扱う', () => {
+        const slips = [
+          {
+            slipNumber: 1,
+            verifiedCount: 1,
+            tasks: [
+              { product: { code: 'P1' }, quantity: 1, verified: true },
+            ]
+          },
+        ];
+        const summary = PT.getSlipVerificationSummary(slips);
+        expect(summary.slipDetails[0].status).to.equal('verified');
+      });
+    });
+
+    // =============================================
+    // Phase 伝票ごと検品: generateSlips に verifiedCount 追加テスト
+    // =============================================
+    describe('generateSlips（verifiedCount 初期化）', () => {
+      const products = [
+        { code: 'P1', name: 'Product 1', stock: 10 },
+        { code: 'P2', name: 'Product 2', stock: 10 },
+      ];
+
+      it('生成された伝票に verifiedCount: null が含まれる', () => {
+        const slips = PT.generateSlips(products, 2, 2);
+        slips.forEach(slip => {
+          expect(slip).to.have.property('verifiedCount', null);
+        });
+      });
+    });
+
   </script>
 
   <script>

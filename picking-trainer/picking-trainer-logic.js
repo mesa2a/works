@@ -154,7 +154,8 @@
         slipId: 'slip-' + i,
         slipNumber: i + 1,
         tasks: tasks,
-        completed: false
+        completed: false,
+        verifiedCount: null
       });
     }
     return slips;
@@ -178,6 +179,51 @@
       completedTasks: allTasks.filter(t => t.completed).length,
       correctCount: allTasks.filter(t => t.found === true).length,
       allTasks: allTasks
+    };
+  }
+
+  /**
+   * 伝票ごとの検品サマリーを返す
+   * @param {Array} slips - 伝票配列
+   * @returns {Object} 検品サマリー
+   */
+  function getSlipVerificationSummary(slips) {
+    if (!slips || slips.length === 0) {
+      return {
+        totalVerified: 0,
+        totalTasks: 0,
+        slipsVerified: 0,
+        slipsSkipped: 0,
+        slipsTotal: 0,
+        slipDetails: []
+      };
+    }
+
+    const slipDetails = slips.map(slip => {
+      const totalTasks = slip.tasks.length;
+      const verifiedCount = slip.tasks.filter(t => t.verified).length;
+      const isSkipped = slip.verifiedCount === null;
+      return {
+        slipNumber: slip.slipNumber,
+        verifiedCount: verifiedCount,
+        totalTasks: totalTasks,
+        percent: totalTasks > 0 ? Math.round((verifiedCount / totalTasks) * 100) : 0,
+        status: isSkipped ? 'skipped' : 'verified'
+      };
+    });
+
+    const totalVerified = slips.flatMap(s => s.tasks).filter(t => t.verified).length;
+    const totalTasks = slips.flatMap(s => s.tasks).length;
+    const slipsVerified = slips.filter(s => s.verifiedCount !== null).length;
+    const slipsSkipped = slips.filter(s => s.verifiedCount === null).length;
+
+    return {
+      totalVerified,
+      totalTasks,
+      slipsVerified,
+      slipsSkipped,
+      slipsTotal: slips.length,
+      slipDetails
     };
   }
 
@@ -221,6 +267,7 @@
     generateSlips,
     isAllSlipsCompleted,
     getSlipsSummary,
+    getSlipVerificationSummary,
     formatDuration,
     formatDate,
     escapeHtml
