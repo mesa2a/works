@@ -405,6 +405,16 @@
       color: var(--color-white);
     }
 
+    .icon-btn.edit {
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+    }
+
+    .icon-btn.edit:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
     /* 進捗表示 */
     .picking-progress {
       font-size: 0.8125rem;
@@ -446,13 +456,50 @@
       border-color: var(--color-warning, #f59e0b);
     }
 
+    .verification-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      padding-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .verification-decrement {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-gray-300);
+      background: var(--color-white);
+      color: var(--color-gray-600);
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .verification-decrement:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .verification-decrement:not(:disabled):active {
+      background: var(--color-gray-100);
+    }
+
     .verification-quantity {
       font-size: 0.875rem;
       font-weight: 700;
       color: var(--color-gray-600);
-      margin-left: auto;
-      padding-left: 12px;
       flex-shrink: 0;
+    }
+
+    .verification-quantity.is-excess {
+      color: var(--color-danger);
     }
 
     .verification-item.checked .verification-quantity {
@@ -461,6 +508,19 @@
 
     .verification-item.partial .verification-quantity {
       color: var(--color-warning, #f59e0b);
+    }
+
+    .verification-item.excess {
+      background: #fef2f2;
+      border-color: var(--color-danger);
+    }
+
+    .verification-item.excess .verification-quantity {
+      color: var(--color-danger);
+    }
+
+    .verification-item.excess .check-icon {
+      color: var(--color-danger);
     }
 
     .verification-item.error {
@@ -475,57 +535,119 @@
     .verification-item-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 0;
     }
 
-    .verification-actions {
+    .verification-item .info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .verification-item .info .name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+    .slip-error-tags {
       display: flex;
-      gap: 6px;
-      padding-left: 38px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .btn-error-report {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      border: 1px solid var(--color-gray-300);
-      border-radius: 4px;
+    .slip-error-tag {
+      padding: 6px 14px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border: 1.5px solid var(--color-gray-300);
+      border-radius: 20px;
       background: var(--color-white);
       color: var(--color-gray-600);
       cursor: pointer;
       transition: all 0.15s;
     }
 
-    .btn-error-report:hover {
+    .slip-error-tag:hover {
       border-color: var(--color-danger);
       color: var(--color-danger);
     }
 
-    .btn-error-report.active {
+    .slip-error-tag.active {
       background: var(--color-danger);
       border-color: var(--color-danger);
       color: var(--color-white);
     }
 
-    .btn-error-clear {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      border: 1px solid var(--color-gray-300);
-      border-radius: 4px;
-      background: var(--color-gray-100);
+    .slip-error-detail {
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: var(--color-gray-50);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-sm);
+    }
+
+    .slip-error-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .slip-error-detail-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-gray-700);
+    }
+
+    .slip-error-count {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slip-error-count button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-gray-300);
+      background: var(--color-white);
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--color-gray-600);
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.15s;
     }
 
-    .btn-error-clear:hover {
-      background: var(--color-gray-200);
+    .slip-error-count button:active {
+      background: var(--color-gray-100);
     }
 
-    .error-note {
-      font-size: 0.75rem;
-      color: var(--color-danger);
-      font-weight: 600;
-      margin-top: 2px;
+    .slip-error-count span {
+      font-size: 1rem;
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+      color: var(--color-gray-800);
+    }
+
+    .slip-error-memo {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 0.8125rem;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 6px;
+      resize: none;
+      font-family: inherit;
+    }
+
+    .slip-error-memo:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(79, 110, 247, 0.15);
     }
 
     .check-icon {
@@ -551,12 +673,70 @@
       color: var(--color-white);
     }
 
+    /* スキャントースト通知 */
+    .scan-toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: scan-toast-in 0.2s ease-out;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .scan-toast.success {
+      background: var(--color-success);
+      color: var(--color-white);
+    }
+
+    .scan-toast.warning {
+      background: var(--color-warning, #f59e0b);
+      color: var(--color-white);
+    }
+
+    .scan-toast.danger {
+      background: var(--color-danger);
+      color: var(--color-white);
+    }
+
+    .scan-toast.fade-out {
+      animation: scan-toast-out 0.3s ease-in forwards;
+    }
+
+    @keyframes scan-toast-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes scan-toast-out {
+      from { opacity: 1; transform: translateX(-50%) translateY(0); }
+      to { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+    }
+
+    /* スキャンハイライトアニメーション */
+    .verification-item.scan-highlight {
+      animation: scan-pulse 0.6s ease-out;
+    }
+
+    @keyframes scan-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(79, 110, 247, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(79, 110, 247, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(79, 110, 247, 0); }
+    }
+
     /* 伝票選択検品画面 */
     .verification-select-card {
       background: var(--color-white);
       border-radius: var(--radius-md);
       padding: 16px;
-      margin-bottom: 12px;
+      margin: 0 auto 12px;
+      max-width: 600px;
       box-shadow: var(--shadow-sm);
       cursor: pointer;
       transition: all 0.15s;
@@ -1711,12 +1891,6 @@
         font-size: 3.25rem;
       }
 
-      .verification-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-      }
-
       .modal-content {
         max-width: 440px;
         padding: 28px;
@@ -1807,6 +1981,7 @@
         margin-left: auto;
         margin-right: auto;
       }
+
     }
 
     /* =============================================
@@ -1863,10 +2038,6 @@
       }
 
       .history-list {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .verification-list {
         grid-template-columns: repeat(3, 1fr);
       }
 
@@ -1963,8 +2134,14 @@
       <side-nav v-if="state.currentUser && !isPracticing"></side-nav>
 
       <nav v-if="!state.currentUser" class="side-nav">
-        <a href="about.html" class="side-nav-item" style="text-decoration:none;">About</a>
-        <a href="guide.html" class="side-nav-item" style="text-decoration:none;">ガイド</a>
+        <a href="about.html" class="side-nav-item" style="text-decoration:none;">
+          <span class="icon" v-html="navIcons.lightbulb"></span>
+          <span class="label">はじめに</span>
+        </a>
+        <a href="guide.html" class="side-nav-item" style="text-decoration:none;">
+          <span class="icon" v-html="navIcons.bookOpen"></span>
+          <span class="label">使い方</span>
+        </a>
       </nav>
 
       <main class="main-content">
@@ -1981,8 +2158,14 @@
     <bottom-nav v-if="state.currentUser && !isPracticing"></bottom-nav>
 
     <nav v-if="!state.currentUser" class="bottom-nav">
-      <a href="about.html" class="nav-item" style="text-decoration:none;">About</a>
-      <a href="guide.html" class="nav-item" style="text-decoration:none;">ガイド</a>
+      <a href="about.html" class="nav-item" style="text-decoration:none;">
+        <span class="icon" v-html="navIcons.lightbulb"></span>
+        <span>はじめに</span>
+      </a>
+      <a href="guide.html" class="nav-item" style="text-decoration:none;">
+        <span class="icon" v-html="navIcons.bookOpen"></span>
+        <span>使い方</span>
+      </a>
     </nav>
 
     <footer v-if="!isPracticing" class="site-footer">
@@ -2024,7 +2207,8 @@
       products: 'picking_products',
       history: 'picking_history',
       currentUser: 'picking_current_user',
-      settings: 'picking_settings'
+      settings: 'picking_settings',
+      practice: 'picking_practice'
     };
 
     // ========================================
@@ -2054,7 +2238,8 @@
       lightbulb: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
       smartphone: '<svg class="icon-svg" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
       folder: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>',
-      clipboardCheck: '<svg class="icon-svg" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>'
+      clipboardCheck: '<svg class="icon-svg" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+      alertTriangle: '<svg class="icon-svg" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>'
     };
 
     // アイコンをサイズ付きで取得するヘルパー
@@ -2404,6 +2589,7 @@
           <div class="card" style="margin-top:16px;">
             <button class="btn btn-primary" @click="goToResult">結果を見る</button>
             <button class="btn btn-secondary" @click="skipAll">全てスキップして結果へ</button>
+            <button class="btn btn-secondary" @click="backToSlipList" style="margin-top:8px;">伝票一覧に戻る</button>
           </div>
         </div>
       `,
@@ -2437,8 +2623,12 @@
           actions.showSlipResult();
         };
 
+        const backToSlipList = () => {
+          state.currentScreen = 'screen-slip-list';
+        };
+
         const icons = { clipboardCheck: iconSvg('clipboardCheck') };
-        return { state, slips, selectSlip, getStatusClass, getStatusText, goToResult, skipAll, icons };
+        return { state, slips, selectSlip, getStatusClass, getStatusText, goToResult, skipAll, backToSlipList, icons };
       }
     };
 
@@ -2448,6 +2638,11 @@
     const ScreenVerification = {
       template: `
         <div>
+          <!-- スキャントースト通知 -->
+          <div v-if="scanToast.visible" class="scan-toast" :class="[scanToast.type, { 'fade-out': scanToast.fading }]">
+            {{ scanToast.message }}
+          </div>
+
           <div class="card">
             <div class="verification-slip-header">
               <span class="slip-number-badge">伝票 {{ currentSlip ? currentSlip.slipNumber : '' }}</span>
@@ -2468,32 +2663,56 @@
             <p style="color:var(--color-gray-500);font-size:0.8125rem;margin:0 0 12px 0;">タップまたはスキャンで検品（数量分必要）</p>
             <div class="verification-list">
               <div v-for="(task, index) in tasks" :key="index"
-                   class="verification-item-wrapper">
+                   class="verification-item-wrapper" :ref="el => setTaskRef(el, task.product.code)">
                 <div class="verification-item"
-                     :class="{ checked: isTaskComplete(task), partial: isTaskPartial(task), error: task.hasError }"
+                     :class="{ checked: isTaskComplete(task) && !isTaskExcess(task), partial: isTaskPartial(task), error: task.hasError, excess: isTaskExcess(task), 'scan-highlight': task._highlight }"
                      @click="incrementVerified(task)">
                   <div class="check-icon" v-html="getTaskIcon(task)"></div>
                   <div class="info">
                     <div class="name">{{ task.product.name }}</div>
                     <div class="code">{{ task.product.code }}</div>
-                    <div v-if="task.hasError" class="error-note">{{ task.errorType }}</div>
                   </div>
-                  <div class="verification-quantity">
-                    {{ task.verifiedQuantity || 0 }}/{{ task.quantity }}
+                  <div class="verification-controls" @click.stop>
+                    <button class="verification-decrement" @click="decrementVerified(task)"
+                            :disabled="!task.verifiedQuantity || task.verifiedQuantity <= 0">−</button>
+                    <span class="verification-quantity" :class="{ 'is-excess': isTaskExcess(task) }">
+                      {{ task.verifiedQuantity || 0 }}/{{ task.quantity }}
+                    </span>
                   </div>
-                </div>
-                <div class="verification-actions">
-                  <button class="btn-error-report" :class="{ active: task.hasError && task.errorType === '数量不足' }" @click="reportError(task, '数量不足')">数量不足</button>
-                  <button class="btn-error-report" :class="{ active: task.hasError && task.errorType === '商品違い' }" @click="reportError(task, '商品違い')">商品違い</button>
-                  <button v-if="task.hasError" class="btn-error-clear" @click="clearError(task)">取消</button>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="card">
+            <div class="card-title"><span v-html="icons.x"></span> ミス記録</div>
+            <p style="color:var(--color-gray-500);font-size:0.8125rem;margin:0 0 12px 0;">この伝票で見つかった問題をタップで選択</p>
+            <div class="slip-error-tags">
+              <button v-for="tag in errorTags" :key="tag"
+                      class="slip-error-tag"
+                      :class="{ active: isErrorTagActive(tag) }"
+                      @click="toggleErrorTag(tag)">
+                {{ tag }}<span v-if="getErrorCount(tag) > 1"> ×{{ getErrorCount(tag) }}</span>
+              </button>
+            </div>
+            <div v-for="tag in activeErrorTags" :key="'detail-'+tag" class="slip-error-detail">
+              <div class="slip-error-detail-header">
+                <span class="slip-error-detail-label">{{ tag }}</span>
+                <div class="slip-error-count">
+                  <button @click="decrementError(tag)">−</button>
+                  <span>{{ getErrorCount(tag) }}</span>
+                  <button @click="incrementError(tag)">+</button>
+                </div>
+              </div>
+              <textarea class="slip-error-memo" rows="2" placeholder="メモ（任意）"
+                        :value="getErrorMemo(tag)"
+                        @input="updateErrorMemo(tag, $event.target.value)"></textarea>
+            </div>
+          </div>
+
+          <div class="card">
             <button class="btn btn-primary" @click="finishVerification">この伝票の検品を完了</button>
-            <button class="btn btn-secondary" @click="skipVerification">スキップして戻る</button>
+            <button class="btn btn-secondary" @click="cancelVerification">検品せずに戻る</button>
           </div>
         </div>
       `,
@@ -2503,6 +2722,40 @@
         const showNotify = inject('showNotify');
         const scannerActive = Vue.ref(false);
         let scanner = null;
+
+        // スキャントースト通知
+        const scanToast = Vue.reactive({ visible: false, message: '', type: 'success', fading: false });
+        let toastTimer = null;
+        let toastFadeTimer = null;
+
+        const showScanToast = (message, type) => {
+          clearTimeout(toastTimer);
+          clearTimeout(toastFadeTimer);
+          scanToast.fading = false;
+          scanToast.message = message;
+          scanToast.type = type;
+          scanToast.visible = true;
+          toastFadeTimer = setTimeout(() => { scanToast.fading = true; }, 1200);
+          toastTimer = setTimeout(() => { scanToast.visible = false; scanToast.fading = false; }, 1500);
+        };
+
+        // デバウンス用
+        let lastScanCode = '';
+        let lastScanTime = 0;
+        const SCAN_DEBOUNCE_MS = 1000;
+
+        // スクロール・ハイライト用ref管理
+        const taskRefs = {};
+        const setTaskRef = (el, code) => {
+          if (el) taskRefs[code] = el;
+        };
+
+        const highlightTask = (task) => {
+          task._highlight = true;
+          const el = taskRefs[task.product.code];
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => { task._highlight = false; }, 600);
+        };
 
         const currentSlip = computed(() => {
           if (!state.practice || state.verificationSlipIndex === null) return null;
@@ -2517,6 +2770,58 @@
         const verifiedCount = computed(() => {
           return tasks.value.filter(t => t.verified).length;
         });
+
+        const handleScan = (decodedText) => {
+          // デバウンス: 同じコードが短時間に連続した場合は無視
+          const now = Date.now();
+          if (decodedText === lastScanCode && (now - lastScanTime) < SCAN_DEBOUNCE_MS) {
+            return;
+          }
+          lastScanCode = decodedText;
+          lastScanTime = now;
+
+          const task = tasks.value.find(t => t.product.code === decodedText);
+
+          if (!task) {
+            // 伝票にない商品 → 商品違いとして記録
+            const masterProduct = state.products.find(p => p.code === decodedText);
+            const displayName = masterProduct ? masterProduct.name + ' (' + decodedText + ')' : decodedText;
+            showScanToast('商品違い: ' + displayName, 'danger');
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            const slip = currentSlip.value;
+            if (slip) {
+              if (!slip.slipErrors) slip.slipErrors = [];
+              const PT = window.PickingTrainer;
+              const existing = PT.getSlipError(slip.slipErrors, '商品違い');
+              if (existing) {
+                slip.slipErrors = PT.updateSlipErrorCount(slip.slipErrors, '商品違い', existing.count + 1);
+                const prevMemo = existing.memo ? existing.memo + ', ' : '';
+                slip.slipErrors = PT.updateSlipErrorMemo(slip.slipErrors, '商品違い', prevMemo + displayName);
+              } else {
+                slip.slipErrors = PT.toggleSlipError(slip.slipErrors, '商品違い');
+                slip.slipErrors = PT.updateSlipErrorMemo(slip.slipErrors, '商品違い', displayName);
+              }
+            }
+            return;
+          }
+
+          if (isTaskComplete(task)) {
+            // 既に検品完了済み
+            showScanToast('検品済み: ' + task.product.name, 'warning');
+            highlightTask(task);
+            return;
+          }
+
+          // 検品カウントアップ
+          incrementVerified(task);
+          const vq = task.verifiedQuantity || 0;
+          const complete = vq >= task.quantity;
+          showScanToast(
+            (complete ? '\u2714 ' : '') + task.product.name + ' (' + vq + '/' + task.quantity + ')',
+            complete ? 'success' : 'success'
+          );
+          highlightTask(task);
+        };
 
         const toggleScanner = () => {
           if (scanner) {
@@ -2536,12 +2841,7 @@
           scanner.start(
             { facingMode: 'environment' },
             { fps: 10, qrbox: { width: 250, height: 100 } },
-            (decodedText) => {
-              const task = tasks.value.find(t => t.product.code === decodedText);
-              if (task) {
-                incrementVerified(task);
-              }
-            },
+            handleScan,
             () => {}
           ).catch(err => {
             console.error('スキャナー起動エラー:', err);
@@ -2559,11 +2859,22 @@
           actions.finishSlipVerification();
         };
 
-        const skipVerification = () => {
+        const cancelVerification = () => {
           if (scanner) {
             scanner.stop().catch(console.error);
             scanner = null;
             scannerActive.value = false;
+          }
+          // 検品データをリセットして戻る
+          const slip = currentSlip.value;
+          if (slip) {
+            slip.tasks.forEach(t => {
+              t.verifiedQuantity = 0;
+              t.verified = false;
+              t.hasError = false;
+            });
+            slip.verifiedCount = null;
+            slip.slipErrors = [];
           }
           actions.skipSlipVerification();
         };
@@ -2573,13 +2884,25 @@
           if (!task.verifiedQuantity) {
             task.verifiedQuantity = 0;
           }
-          if (task.verifiedQuantity < task.quantity) {
-            task.verifiedQuantity++;
-            if (navigator.vibrate) {
-              navigator.vibrate(task.verifiedQuantity >= task.quantity ? 200 : 50);
+          task.verifiedQuantity++;
+          if (navigator.vibrate) {
+            if (task.verifiedQuantity > task.quantity) {
+              navigator.vibrate([50, 30, 50]); // 超過パターン
+            } else if (task.verifiedQuantity === task.quantity) {
+              navigator.vibrate(200); // 完了
+            } else {
+              navigator.vibrate(50); // 通常
             }
           }
           task.verified = task.verifiedQuantity >= task.quantity;
+        };
+
+        const decrementVerified = (task) => {
+          if (task.hasError) return;
+          if (!task.verifiedQuantity || task.verifiedQuantity <= 0) return;
+          task.verifiedQuantity--;
+          task.verified = task.verifiedQuantity >= task.quantity;
+          if (navigator.vibrate) navigator.vibrate(30);
         };
 
         const isTaskComplete = (task) => {
@@ -2592,35 +2915,79 @@
           return vq > 0 && vq < task.quantity;
         };
 
+        const isTaskExcess = (task) => {
+          if (task.hasError) return false;
+          return (task.verifiedQuantity || 0) > task.quantity;
+        };
+
         const getTaskIcon = (task) => {
           if (task.hasError) return icons.x;
+          if (isTaskExcess(task)) return icons.alertTriangle;
           if (isTaskComplete(task)) return icons.check;
           return '–';
         };
 
-        const reportError = (task, errorType) => {
-          task.hasError = true;
-          task.errorType = errorType;
-          task.verified = false;
-          if (navigator.vibrate) {
-            navigator.vibrate([100, 50, 100]);
+
+        // 伝票レベルのミス記録（定型エラータグ + 回数 + メモ）
+        const PT = window.PickingTrainer;
+        const errorTags = ['商品違い', '破損'];
+
+        const getErrors = () => currentSlip.value?.slipErrors || [];
+
+        const isErrorTagActive = (tag) => PT.getSlipError(getErrors(), tag) !== null;
+
+        const activeErrorTags = Vue.computed(() => errorTags.filter(tag => isErrorTagActive(tag)));
+
+        const toggleErrorTag = (tag) => {
+          const slip = currentSlip.value;
+          if (!slip) return;
+          if (!slip.slipErrors) slip.slipErrors = [];
+          slip.slipErrors = PT.toggleSlipError(slip.slipErrors, tag);
+          if (PT.getSlipError(slip.slipErrors, tag)) {
+            if (navigator.vibrate) navigator.vibrate(50);
           }
         };
 
-        const clearError = (task) => {
-          task.hasError = false;
-          task.errorType = null;
-          task.verified = (task.verifiedQuantity || 0) >= task.quantity;
+        const getErrorCount = (tag) => {
+          const err = PT.getSlipError(getErrors(), tag);
+          return err ? err.count : 0;
+        };
+
+        const getErrorMemo = (tag) => {
+          const err = PT.getSlipError(getErrors(), tag);
+          return err ? err.memo : '';
+        };
+
+        const incrementError = (tag) => {
+          const slip = currentSlip.value;
+          if (!slip || !slip.slipErrors) return;
+          const current = getErrorCount(tag);
+          slip.slipErrors = PT.updateSlipErrorCount(slip.slipErrors, tag, current + 1);
+        };
+
+        const decrementError = (tag) => {
+          const slip = currentSlip.value;
+          if (!slip || !slip.slipErrors) return;
+          const current = getErrorCount(tag);
+          slip.slipErrors = PT.updateSlipErrorCount(slip.slipErrors, tag, current - 1);
+        };
+
+        const updateErrorMemo = (tag, memo) => {
+          const slip = currentSlip.value;
+          if (!slip || !slip.slipErrors) return;
+          slip.slipErrors = PT.updateSlipErrorMemo(slip.slipErrors, tag, memo);
         };
 
         onBeforeUnmount(() => {
           if (scanner) {
             scanner.stop().catch(console.error);
           }
+          clearTimeout(toastTimer);
+          clearTimeout(toastFadeTimer);
         });
 
-        const icons = { camera: iconSvg('camera'), squareStop: iconSvg('squareStop'), circleCheck: iconSvg('circleCheck'), check: iconSvg('check'), x: iconSvg('x') };
-        return { state, currentSlip, tasks, verifiedCount, scannerActive, toggleScanner, finishVerification, skipVerification, incrementVerified, isTaskComplete, isTaskPartial, getTaskIcon, reportError, clearError, icons };
+        const icons = { camera: iconSvg('camera'), squareStop: iconSvg('squareStop'), circleCheck: iconSvg('circleCheck'), check: iconSvg('check'), x: iconSvg('x'), alertTriangle: iconSvg('alertTriangle') };
+        return { state, currentSlip, tasks, verifiedCount, scannerActive, scanToast, setTaskRef, toggleScanner, finishVerification, cancelVerification, incrementVerified, decrementVerified, isTaskComplete, isTaskPartial, isTaskExcess, getTaskIcon, errorTags, isErrorTagActive, activeErrorTags, toggleErrorTag, getErrorCount, getErrorMemo, incrementError, decrementError, updateErrorMemo, icons };
       }
     };
 
@@ -3316,6 +3683,7 @@
                     <span class="stock-value" :class="{ 'out-of-stock': (product.stock ?? 99) === 0 }">{{ product.stock ?? 99 }}</span>
                     <button class="stock-btn" @click="updateStock(product, 1)">+</button>
                   </div>
+                  <button class="icon-btn edit" @click="openEditModal(product)"><span v-html="icons.pencil"></span></button>
                   <button class="icon-btn delete" @click="deleteProduct(product.code)"><span v-html="icons.trash"></span></button>
                 </div>
               </div>
@@ -3355,6 +3723,31 @@
             </div>
             <input type="file" ref="importFileInput" accept=".json" style="display:none" @change="importData">
           </div>
+
+          <!-- 商品編集モーダル -->
+          <div v-if="editModal.visible" class="modal-overlay" @click.self="closeEditModal">
+            <div class="modal-content">
+              <div class="modal-title">商品を編集</div>
+              <div class="modal-body" style="margin-bottom: 0;">
+                <div class="input-group">
+                  <label>商品コード</label>
+                  <input type="text" v-model="editModal.code" placeholder="例：4901234567890">
+                </div>
+                <div class="input-group">
+                  <label>商品名</label>
+                  <input type="text" v-model="editModal.name" placeholder="例：お茶500ml">
+                </div>
+                <div class="input-group">
+                  <label>在庫数</label>
+                  <input type="number" v-model.number="editModal.stock" min="0" placeholder="例：10">
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button class="btn btn-secondary" @click="closeEditModal">キャンセル</button>
+                <button class="btn btn-primary" @click="saveEdit">保存</button>
+              </div>
+            </div>
+          </div>
         </div>
       `,
       setup() {
@@ -3366,6 +3759,55 @@
         const productScannerActive = Vue.ref(false);
         const importFileInput = Vue.ref(null);
         let productScanner = null;
+
+        // 編集モーダル
+        const editModal = Vue.reactive({
+          visible: false,
+          originalCode: '',
+          code: '',
+          name: '',
+          stock: 0
+        });
+
+        const openEditModal = (product) => {
+          editModal.originalCode = product.code;
+          editModal.code = product.code;
+          editModal.name = product.name;
+          editModal.stock = product.stock ?? 99;
+          editModal.visible = true;
+        };
+
+        const closeEditModal = () => {
+          editModal.visible = false;
+        };
+
+        const saveEdit = () => {
+          const original = { code: editModal.originalCode };
+          const updated = {
+            code: editModal.code,
+            name: editModal.name,
+            stock: editModal.stock
+          };
+
+          const result = window.PickingTrainer.validateProductEdit(
+            original, updated, state.products
+          );
+
+          if (!result.valid) {
+            showNotify('入力エラー', result.errors.join('\n'));
+            return;
+          }
+
+          const index = state.products.findIndex(p => p.code === editModal.originalCode);
+          if (index !== -1) {
+            state.products[index].code = updated.code;
+            state.products[index].name = updated.name;
+            state.products[index].stock = Number(updated.stock);
+          }
+
+          editModal.visible = false;
+          showNotify('更新完了', '商品情報を更新しました。');
+        };
 
         const addProduct = () => {
           if (!newProduct.code || !newProduct.name) {
@@ -3490,6 +3932,7 @@
         const icons = {
           package: iconSvg('package'),
           packageLg: iconSvg('package', 'icon-empty'),
+          pencil: iconSvg('pencil'),
           trash: iconSvg('trash'),
           lightbulb: iconSvg('lightbulb'),
           camera: iconSvg('camera'),
@@ -3504,9 +3947,13 @@
           newProduct,
           productScannerActive,
           importFileInput,
+          editModal,
           addProduct,
           deleteProduct,
           updateStock,
+          openEditModal,
+          closeEditModal,
+          saveEdit,
           toggleProductScanner,
           exportData,
           triggerImport,
@@ -3610,6 +4057,7 @@
           localStorage.removeItem(STORAGE_KEYS.history);
           localStorage.removeItem(STORAGE_KEYS.currentUser);
           localStorage.removeItem(STORAGE_KEYS.settings);
+          localStorage.removeItem(STORAGE_KEYS.practice);
 
           location.reload();
         };
@@ -3692,6 +4140,16 @@
               state.slipCount = s.slipCount || 3;
               state.itemsPerSlip = s.itemsPerSlip || 5;
             }
+
+            const practice = localStorage.getItem(STORAGE_KEYS.practice);
+            if (practice) {
+              const p = JSON.parse(practice);
+              state.practice = p.practice;
+              state.verificationSlipIndex = p.verificationSlipIndex;
+              if (state.practice && state.currentUser) {
+                state.currentScreen = p.currentScreen || 'screen-slip-list';
+              }
+            }
           } catch (e) {
             console.error('データ読み込みエラー:', e);
           }
@@ -3720,6 +4178,14 @@
           itemsPerSlip: state.itemsPerSlip
         }), (val) => {
           localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(val));
+        }, { deep: true });
+
+        watch(() => ({ practice: state.practice, verificationSlipIndex: state.verificationSlipIndex, currentScreen: state.currentScreen }), (val) => {
+          if (val.practice) {
+            localStorage.setItem(STORAGE_KEYS.practice, JSON.stringify(val));
+          } else {
+            localStorage.removeItem(STORAGE_KEYS.practice);
+          }
         }, { deep: true });
 
         // アクション
@@ -3898,7 +4364,12 @@
           return screen === 'screen-verification' || screen === 'screen-slip-list' || screen === 'screen-verification-select';
         });
 
-        return { state, isPracticing, notify, closeNotify, confirmModal, okConfirm, cancelConfirm };
+        const navIcons = {
+          lightbulb: iconSvg('lightbulb', 'icon-nav'),
+          bookOpen: iconSvg('bookOpen', 'icon-nav')
+        };
+
+        return { state, isPracticing, navIcons, notify, closeNotify, confirmModal, okConfirm, cancelConfirm };
       }
     };
 

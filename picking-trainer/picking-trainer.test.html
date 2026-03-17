@@ -777,6 +777,206 @@
     });
 
     // =============================================
+    // Phase 商品編集: validateProductEdit のテスト
+    // =============================================
+    describe('validateProductEdit', () => {
+      const allProducts = [
+        { code: 'P1', name: 'Product 1', stock: 10 },
+        { code: 'P2', name: 'Product 2', stock: 5 },
+        { code: 'P3', name: 'Product 3', stock: 0 },
+      ];
+
+      it('正常な編集で valid: true を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: 'Updated Name', stock: 20 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.true;
+        expect(result.errors).to.have.length(0);
+      });
+
+      it('商品名が空の場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: '', stock: 10 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+        expect(result.errors).to.include('商品名を入力してください。');
+      });
+
+      it('商品名がスペースのみの場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: '   ', stock: 10 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+      });
+
+      it('商品コードが空の場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: '', name: 'Product 1', stock: 10 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+        expect(result.errors).to.include('商品コードを入力してください。');
+      });
+
+      it('商品コードを変更して重複する場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P2', name: 'Product 1', stock: 10 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+        expect(result.errors).to.include('同じ商品コードが既に登録されています。');
+      });
+
+      it('商品コードを変更しない場合は重複チェックされない', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: 'Updated', stock: 10 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.true;
+      });
+
+      it('商品コードを未使用のコードに変更した場合 valid: true を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P999', name: 'Product 1', stock: 10 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.true;
+      });
+
+      it('在庫数が負の場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: 'Product 1', stock: -1 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+        expect(result.errors).to.include('在庫数は0以上の整数を入力してください。');
+      });
+
+      it('在庫数が小数の場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: 'Product 1', stock: 1.5 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+      });
+
+      it('在庫数が0の場合 valid: true を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: 'Product 1', stock: 0 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.true;
+      });
+
+      it('在庫数が空文字の場合 valid: false を返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: 'P1', name: 'Product 1', stock: '' };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+      });
+
+      it('複数のエラーを同時に返す', () => {
+        const original = { code: 'P1', name: 'Product 1', stock: 10 };
+        const updated = { code: '', name: '', stock: -1 };
+        const result = PT.validateProductEdit(original, updated, allProducts);
+        expect(result.valid).to.be.false;
+        expect(result.errors.length).to.be.at.least(3);
+      });
+    });
+
+    // =============================================
+    // Phase ミス記録: slipErrors 操作関数のテスト
+    // =============================================
+    describe('toggleSlipError', () => {
+      it('空配列にタグを追加すると count:1 のエントリが追加される', () => {
+        const errors = [];
+        const result = PT.toggleSlipError(errors, '商品違い');
+        expect(result).to.have.length(1);
+        expect(result[0]).to.deep.equal({ tag: '商品違い', count: 1, memo: '' });
+      });
+
+      it('既存タグをトグルすると削除される', () => {
+        const errors = [{ tag: '商品違い', count: 2, memo: 'テスト' }];
+        const result = PT.toggleSlipError(errors, '商品違い');
+        expect(result).to.have.length(0);
+      });
+
+      it('異なるタグは影響を受けない', () => {
+        const errors = [{ tag: '破損', count: 1, memo: '' }];
+        const result = PT.toggleSlipError(errors, '商品違い');
+        expect(result).to.have.length(2);
+        expect(result.find(e => e.tag === '破損')).to.deep.equal({ tag: '破損', count: 1, memo: '' });
+      });
+
+      it('元の配列を変更せず新しい配列を返す', () => {
+        const errors = [{ tag: '破損', count: 1, memo: '' }];
+        const result = PT.toggleSlipError(errors, '破損');
+        expect(errors).to.have.length(1); // 元は変わらない
+        expect(result).to.have.length(0);
+      });
+    });
+
+    describe('updateSlipErrorCount', () => {
+      it('指定タグの count を更新する', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        const result = PT.updateSlipErrorCount(errors, '商品違い', 3);
+        expect(result.find(e => e.tag === '商品違い').count).to.equal(3);
+      });
+
+      it('存在しないタグの場合は変更なし', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        const result = PT.updateSlipErrorCount(errors, '破損', 5);
+        expect(result).to.have.length(1);
+        expect(result[0].count).to.equal(1);
+      });
+
+      it('count が 0 以下の場合は 1 にクランプする', () => {
+        const errors = [{ tag: '商品違い', count: 3, memo: '' }];
+        const result = PT.updateSlipErrorCount(errors, '商品違い', 0);
+        expect(result.find(e => e.tag === '商品違い').count).to.equal(1);
+      });
+
+      it('元の配列を変更しない', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        PT.updateSlipErrorCount(errors, '商品違い', 5);
+        expect(errors[0].count).to.equal(1);
+      });
+    });
+
+    describe('updateSlipErrorMemo', () => {
+      it('指定タグの memo を更新する', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        const result = PT.updateSlipErrorMemo(errors, '商品違い', 'りんご→みかん');
+        expect(result.find(e => e.tag === '商品違い').memo).to.equal('りんご→みかん');
+      });
+
+      it('存在しないタグの場合は変更なし', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        const result = PT.updateSlipErrorMemo(errors, '破損', 'メモ');
+        expect(result).to.have.length(1);
+        expect(result[0].memo).to.equal('');
+      });
+
+      it('元の配列を変更しない', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        PT.updateSlipErrorMemo(errors, '商品違い', '更新');
+        expect(errors[0].memo).to.equal('');
+      });
+    });
+
+    describe('getSlipError', () => {
+      it('存在するタグの情報を返す', () => {
+        const errors = [{ tag: '商品違い', count: 2, memo: 'テスト' }];
+        const result = PT.getSlipError(errors, '商品違い');
+        expect(result).to.deep.equal({ tag: '商品違い', count: 2, memo: 'テスト' });
+      });
+
+      it('存在しないタグの場合 null を返す', () => {
+        const errors = [{ tag: '商品違い', count: 1, memo: '' }];
+        const result = PT.getSlipError(errors, '破損');
+        expect(result).to.be.null;
+      });
+
+      it('空配列の場合 null を返す', () => {
+        const result = PT.getSlipError([], '商品違い');
+        expect(result).to.be.null;
+      });
+    });
+
+    // =============================================
     // Phase 伝票ごと検品: generateSlips に verifiedCount 追加テスト
     // =============================================
     describe('generateSlips（verifiedCount 初期化）', () => {

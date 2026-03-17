@@ -228,6 +228,101 @@
   }
 
   // =============================================
+  // 商品編集バリデーション
+  // =============================================
+
+  /**
+   * 商品編集のバリデーション
+   * @param {Object} original - 編集前の商品 { code, ... }
+   * @param {Object} updated - 編集後の値 { code, name, stock }
+   * @param {Array} allProducts - 全商品リスト
+   * @returns {Object} { valid: boolean, errors: string[] }
+   */
+  function validateProductEdit(original, updated, allProducts) {
+    const errors = [];
+
+    if (!updated.name || updated.name.trim() === '') {
+      errors.push('商品名を入力してください。');
+    }
+
+    if (!updated.code || updated.code.trim() === '') {
+      errors.push('商品コードを入力してください。');
+    } else if (updated.code !== original.code) {
+      if (allProducts.find(p => p.code === updated.code)) {
+        errors.push('同じ商品コードが既に登録されています。');
+      }
+    }
+
+    if (updated.stock === null || updated.stock === undefined || updated.stock === '') {
+      errors.push('在庫数を入力してください。');
+    } else {
+      const stockNum = Number(updated.stock);
+      if (!Number.isInteger(stockNum) || stockNum < 0) {
+        errors.push('在庫数は0以上の整数を入力してください。');
+      }
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
+  // =============================================
+  // 伝票エラー記録（slipErrors 操作）
+  // =============================================
+
+  /**
+   * エラータグのON/OFF切り替え（イミュータブル）
+   * @param {Array} slipErrors - 既存のエラー配列 [{ tag, count, memo }]
+   * @param {string} tag - 切り替えるタグ名
+   * @returns {Array} 新しいエラー配列
+   */
+  function toggleSlipError(slipErrors, tag) {
+    const exists = slipErrors.find(e => e.tag === tag);
+    if (exists) {
+      return slipErrors.filter(e => e.tag !== tag);
+    }
+    return [...slipErrors, { tag, count: 1, memo: '' }];
+  }
+
+  /**
+   * エラータグの回数を更新（イミュータブル）
+   * @param {Array} slipErrors - 既存のエラー配列
+   * @param {string} tag - 対象タグ名
+   * @param {number} count - 新しい回数（1未満は1にクランプ）
+   * @returns {Array} 新しいエラー配列
+   */
+  function updateSlipErrorCount(slipErrors, tag, count) {
+    return slipErrors.map(e => {
+      if (e.tag !== tag) return { ...e };
+      return { ...e, count: Math.max(1, count) };
+    });
+  }
+
+  /**
+   * エラータグのメモを更新（イミュータブル）
+   * @param {Array} slipErrors - 既存のエラー配列
+   * @param {string} tag - 対象タグ名
+   * @param {string} memo - 新しいメモ
+   * @returns {Array} 新しいエラー配列
+   */
+  function updateSlipErrorMemo(slipErrors, tag, memo) {
+    return slipErrors.map(e => {
+      if (e.tag !== tag) return { ...e };
+      return { ...e, memo };
+    });
+  }
+
+  /**
+   * 特定タグのエラー情報を取得
+   * @param {Array} slipErrors - エラー配列
+   * @param {string} tag - タグ名
+   * @returns {Object|null} エラー情報 or null
+   */
+  function getSlipError(slipErrors, tag) {
+    const found = slipErrors.find(e => e.tag === tag);
+    return found || null;
+  }
+
+  // =============================================
   // ユーティリティ
   // =============================================
 
@@ -268,6 +363,11 @@
     isAllSlipsCompleted,
     getSlipsSummary,
     getSlipVerificationSummary,
+    validateProductEdit,
+    toggleSlipError,
+    updateSlipErrorCount,
+    updateSlipErrorMemo,
+    getSlipError,
     formatDuration,
     formatDate,
     escapeHtml
