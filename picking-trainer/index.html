@@ -1909,7 +1909,7 @@
         border-right: 1px solid var(--color-gray-200);
         padding: 12px 0;
         position: sticky;
-        top: 68px;
+        top: var(--header-height, 96px);
         height: fit-content;
         align-self: flex-start;
         flex-shrink: 0;
@@ -1971,13 +1971,13 @@
       }
 
       .slip-card {
-        max-width: 560px;
+        max-width: 600px;
         margin-left: auto;
         margin-right: auto;
       }
 
       .slip-nav {
-        max-width: 560px;
+        max-width: 600px;
         margin-left: auto;
         margin-right: auto;
       }
@@ -2064,7 +2064,6 @@
       .side-nav {
         width: 180px;
         padding: 16px 0;
-        top: 78px;
       }
 
       .side-nav-item {
@@ -2083,11 +2082,11 @@
       }
 
       .slip-card {
-        max-width: 640px;
+        max-width: 600px;
       }
 
       .slip-nav {
-        max-width: 640px;
+        max-width: 600px;
       }
 
       .slip-item-row {
@@ -4368,6 +4367,19 @@
           lightbulb: iconSvg('lightbulb', 'icon-nav'),
           bookOpen: iconSvg('bookOpen', 'icon-nav')
         };
+
+        onMounted(() => {
+          Vue.nextTick(() => {
+            const header = document.querySelector('header');
+            if (header) {
+              const update = () => {
+                document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+              };
+              update();
+              window.addEventListener('resize', update);
+            }
+          });
+        });
 
         return { state, isPracticing, navIcons, notify, closeNotify, confirmModal, okConfirm, cancelConfirm };
       }
