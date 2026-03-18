@@ -3350,9 +3350,8 @@
         const resultLabel = computed(() => {
           const score = mainScore.value;
           if (score === 100) return 'パーフェクト！';
-          if (score >= 80) return '素晴らしい！';
-          if (score >= 60) return 'よくできました';
-          if (score >= 40) return 'もう少し！';
+          if (score >= 80) return 'あと少し！';
+          if (score >= 50) return 'がんばりましょう';
           return 'がんばりましょう';
         });
 
@@ -4328,9 +4327,14 @@
             if (!state.practice) return;
 
             const summary = window.PickingTrainer.getSlipsSummary(state.practice.slips);
-            const score = summary.totalTasks > 0
+            const errorPenalty = state.practice.slips.reduce((sum, slip) => {
+              if (!slip.slipErrors) return sum;
+              return sum + slip.slipErrors.reduce((s, e) => s + e.count, 0);
+            }, 0);
+            const baseScore = summary.totalTasks > 0
               ? Math.round((summary.correctCount / summary.totalTasks) * 100)
               : 0;
+            const score = Math.max(0, baseScore - errorPenalty * 10);
 
             // ピッキング個数の集計
             const allTasks = state.practice.slips.flatMap(s => s.tasks);
