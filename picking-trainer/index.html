@@ -3254,10 +3254,6 @@
                 <div class="stat-value">{{ durationText }}</div>
                 <div class="stat-label">所要時間</div>
               </div>
-              <div class="result-stat-card">
-                <div class="stat-value">{{ verifiedText }}</div>
-                <div class="stat-label">検品結果</div>
-              </div>
             </div>
           </div>
 
@@ -3374,16 +3370,6 @@
           return window.PickingTrainer.formatDuration(p.endTime - p.startTime);
         });
 
-        const verifiedText = computed(() => {
-          const p = state.practice;
-          if (!p || !p.slips) return '-';
-          const verificationSummary = window.PickingTrainer.getSlipVerificationSummary(p.slips);
-          if (verificationSummary.slipsVerified === 0) {
-            return 'スキップ';
-          }
-          return `${verificationSummary.totalVerified}/${verificationSummary.totalTasks}`;
-        });
-
         // 伝票ごとの結果
         const slipResults = computed(() => {
           const p = state.practice;
@@ -3477,7 +3463,6 @@
           totalQuantity,
           pickedQuantity,
           durationText,
-          verifiedText,
           slipResults,
           isNewBest,
           reviewOpen,
