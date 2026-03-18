@@ -1384,8 +1384,8 @@
       transition: width 0.4s ease;
     }
 
-    /* スキャナー */
-    #scanner-container, #product-scanner-container {
+    /* スキャナー（通常表示: 商品登録用） */
+    #product-scanner-container {
       width: 100%;
       max-width: 320px;
       margin: 0 auto 16px;
@@ -1393,11 +1393,71 @@
       overflow: hidden;
     }
 
-    #scanner-container video, #product-scanner-container video {
+    #product-scanner-container video {
       width: 100%;
       height: 160px;
       object-fit: cover;
       border-radius: var(--radius-sm);
+    }
+
+    /* スキャナー PiP（検品用フローティング） */
+    .scanner-pip {
+      position: fixed;
+      bottom: 80px;
+      right: 12px;
+      z-index: 200;
+      width: 160px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--color-primary);
+      background: #000;
+      touch-action: none;
+      transition: opacity 0.2s;
+    }
+
+    .scanner-pip #scanner-container {
+      width: 100%;
+      margin: 0;
+    }
+
+    .scanner-pip #scanner-container video {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .scanner-pip-toggle {
+      position: fixed;
+      bottom: 80px;
+      right: 12px;
+      z-index: 201;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .scanner-pip-toggle:active {
+      transform: scale(0.92);
+    }
+
+    .scanner-pip-toggle.active {
+      background: var(--color-danger);
+    }
+
+    .scanner-pip-toggle .icon-svg {
+      width: 24px;
+      height: 24px;
     }
 
     /* ボトムナビ */
@@ -2654,13 +2714,13 @@
             </div>
           </div>
 
-          <div class="card">
-            <div class="card-title"><span v-html="icons.camera"></span> バーコードで検品</div>
+          <!-- スキャナー PiP（フローティング） -->
+          <div v-if="scannerActive" class="scanner-pip">
             <div id="scanner-container"></div>
-            <button class="btn btn-secondary" @click="toggleScanner">
-              <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
-            </button>
           </div>
+          <button class="scanner-pip-toggle" :class="{ active: scannerActive }" @click="toggleScanner">
+            <span v-html="scannerActive ? icons.squareStop : icons.camera"></span>
+          </button>
 
           <div class="card">
             <div class="card-title"><span v-html="icons.circleCheck"></span> 検品リスト</div>
@@ -2838,19 +2898,17 @@
 
           scannerActive.value = true;
           Vue.nextTick(() => {
-            const el = document.getElementById('scanner-container');
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          });
-          scanner = new Html5Qrcode('scanner-container');
-          scanner.start(
-            { facingMode: 'environment' },
-            { fps: 10, qrbox: { width: 250, height: 100 } },
-            handleScan,
-            () => {}
-          ).catch(err => {
-            console.error('スキャナー起動エラー:', err);
-            showNotify('カメラエラー', 'カメラを起動できませんでした。カメラのアクセス許可を確認してください。');
-            scannerActive.value = false;
+            scanner = new Html5Qrcode('scanner-container');
+            scanner.start(
+              { facingMode: 'environment' },
+              { fps: 10, qrbox: { width: 250, height: 100 } },
+              handleScan,
+              () => {}
+            ).catch(err => {
+              console.error('スキャナー起動エラー:', err);
+              showNotify('カメラエラー', 'カメラを起動できませんでした。カメラのアクセス許可を確認してください。');
+              scannerActive.value = false;
+            });
           });
         };
 
