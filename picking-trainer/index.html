@@ -1142,6 +1142,42 @@
       color: #dc2626;
     }
 
+    .review-task-status.excess {
+      color: #d97706;
+    }
+
+    .review-task-icon.excess {
+      color: #d97706;
+    }
+
+    .review-slip-errors {
+      padding: 6px 12px;
+      margin-top: 2px;
+      border-top: 1px dashed #e5e7eb;
+    }
+
+    .review-slip-error-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
+      font-size: 0.8rem;
+    }
+
+    .review-error-tag {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .review-error-memo {
+      color: #6b7280;
+      font-size: 0.75rem;
+    }
+
     .new-best {
       background: linear-gradient(135deg, #fbbf24, #f59e0b);
       color: var(--color-white);
@@ -3271,7 +3307,7 @@
                   </span>
                 </div>
                 <div v-for="(task, ti) in slip.tasks" :key="ti" class="review-task">
-                  <div class="review-task-icon" :class="task.found ? 'correct' : 'wrong'">
+                  <div class="review-task-icon" :class="taskStatusClass(task)">
                     <svg v-if="task.found" class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/></svg>
                     <svg v-else class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                   </div>
@@ -3279,8 +3315,14 @@
                     <div class="review-task-name">{{ task.product.name }}</div>
                     <div class="review-task-detail">コード: {{ task.product.code }}　数量: {{ task.verifiedQuantity || 0 }}/{{ task.quantity }}</div>
                   </div>
-                  <div class="review-task-status" :class="task.found ? 'correct' : 'wrong'">
-                    {{ task.found ? '正解' : '未ピック' }}
+                  <div class="review-task-status" :class="taskStatusClass(task)">
+                    {{ taskStatusLabel(task) }}
+                  </div>
+                </div>
+                <div v-if="slip.slipErrors && slip.slipErrors.length > 0" class="review-slip-errors">
+                  <div v-for="err in slip.slipErrors" :key="err.tag" class="review-slip-error-item">
+                    <span class="review-error-tag">{{ err.tag }}<span v-if="err.count > 1"> ×{{ err.count }}</span></span>
+                    <span v-if="err.memo" class="review-error-memo">{{ err.memo }}</span>
                   </div>
                 </div>
               </div>
@@ -3393,11 +3435,27 @@
             return {
               slipNumber: slip.slipNumber,
               tasks: slip.tasks,
-              hasErrors: wrongCount > 0,
+              slipErrors: slip.slipErrors || [],
+              hasErrors: wrongCount > 0 || (slip.slipErrors && slip.slipErrors.length > 0),
               wrongCount
             };
           });
         });
+
+        const taskStatusClass = (task) => {
+          const vq = task.verifiedQuantity || 0;
+          if (vq === 0) return 'wrong';
+          if (vq > task.quantity) return 'excess';
+          if (vq < task.quantity) return 'wrong';
+          return 'correct';
+        };
+        const taskStatusLabel = (task) => {
+          const vq = task.verifiedQuantity || 0;
+          if (vq === 0) return '未ピック';
+          if (vq > task.quantity) return '超過';
+          if (vq < task.quantity) return '不足';
+          return '正解';
+        };
 
         // 伝票ごとの検品結果
         const verificationDetails = computed(() => {
@@ -3462,6 +3520,8 @@
           isNewBest,
           reviewOpen,
           reviewSlips,
+          taskStatusClass,
+          taskStatusLabel,
           verificationDetails,
           restartPractice,
           icons
@@ -3565,7 +3625,7 @@
                         </span>
                       </div>
                       <div v-for="(task, ti) in slip.tasks" :key="ti" class="review-task">
-                        <div class="review-task-icon" :class="task.found ? 'correct' : 'wrong'">
+                        <div class="review-task-icon" :class="historyTaskStatusClass(task)">
                           <svg v-if="task.found" class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/></svg>
                           <svg v-else class="lp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                         </div>
@@ -3573,8 +3633,14 @@
                           <div class="review-task-name">{{ task.name }}</div>
                           <div class="review-task-detail">コード: {{ task.code }}　数量: {{ task.verifiedQuantity != null ? task.verifiedQuantity : '?' }}/{{ task.quantity }}</div>
                         </div>
-                        <div class="review-task-status" :class="task.found ? 'correct' : 'wrong'">
-                          {{ task.found ? '正解' : '未ピック' }}
+                        <div class="review-task-status" :class="historyTaskStatusClass(task)">
+                          {{ historyTaskStatusLabel(task) }}
+                        </div>
+                      </div>
+                      <div v-if="slip.slipErrors && slip.slipErrors.length > 0" class="review-slip-errors">
+                        <div v-for="err in slip.slipErrors" :key="err.tag" class="review-slip-error-item">
+                          <span class="review-error-tag">{{ err.tag }}<span v-if="err.count > 1"> ×{{ err.count }}</span></span>
+                          <span v-if="err.memo" class="review-error-memo">{{ err.memo }}</span>
                         </div>
                       </div>
                     </div>
@@ -3665,11 +3731,26 @@
         };
 
         const slipHasErrors = (slip) => {
-          return slip.tasks.some(t => t.found !== true);
+          return slip.tasks.some(t => t.found !== true) || (slip.slipErrors && slip.slipErrors.length > 0);
         };
 
         const slipWrongCount = (slip) => {
           return slip.tasks.filter(t => t.found !== true).length;
+        };
+
+        const historyTaskStatusClass = (task) => {
+          const vq = task.verifiedQuantity != null ? task.verifiedQuantity : (task.found ? task.quantity : 0);
+          if (vq === 0) return 'wrong';
+          if (vq > task.quantity) return 'excess';
+          if (vq < task.quantity) return 'wrong';
+          return 'correct';
+        };
+        const historyTaskStatusLabel = (task) => {
+          const vq = task.verifiedQuantity != null ? task.verifiedQuantity : (task.found ? task.quantity : 0);
+          if (vq === 0) return '未ピック';
+          if (vq > task.quantity) return '超過';
+          if (vq < task.quantity) return '不足';
+          return '正解';
         };
 
         const formatDate = (isoString) => {
@@ -3689,6 +3770,7 @@
           state, filteredHistory, stats,
           chartWidth, chartHeight, chartData, chartPoints, linePoints, areaPath, guideY,
           scoreBadgeClass, openDetailId, toggleDetail, slipHasErrors, slipWrongCount,
+          historyTaskStatusClass, historyTaskStatusLabel,
           formatDate, formatDuration, icons
         };
       }
@@ -4308,6 +4390,7 @@
             // 振り返り用にタスク詳細を保存
             const slipsDetail = state.practice.slips.map(slip => ({
               slipNumber: slip.slipNumber,
+              slipErrors: slip.slipErrors || [],
               tasks: slip.tasks.map(t => ({
                 name: t.product.name,
                 code: t.product.code,
