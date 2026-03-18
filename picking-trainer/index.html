@@ -3208,7 +3208,11 @@
               </div>
               <div class="result-stat-card">
                 <div class="stat-value">{{ correctCount }}<span style="font-size:0.75rem;font-weight:500;color:var(--color-gray-400);">/{{ totalTasks }}</span></div>
-                <div class="stat-label">正解数</div>
+                <div class="stat-label">正解品目</div>
+              </div>
+              <div class="result-stat-card">
+                <div class="stat-value">{{ pickedQuantity }}<span style="font-size:0.75rem;font-weight:500;color:var(--color-gray-400);">/{{ totalQuantity }}</span></div>
+                <div class="stat-label">ピッキング数</div>
               </div>
               <div class="result-stat-card">
                 <div class="stat-value">{{ durationText }}</div>
@@ -3273,7 +3277,7 @@
                   </div>
                   <div class="review-task-body">
                     <div class="review-task-name">{{ task.product.name }}</div>
-                    <div class="review-task-detail">コード: {{ task.product.code }}　数量: {{ task.quantity }}</div>
+                    <div class="review-task-detail">コード: {{ task.product.code }}　数量: {{ task.verifiedQuantity || 0 }}/{{ task.quantity }}</div>
                   </div>
                   <div class="review-task-status" :class="task.found ? 'correct' : 'wrong'">
                     {{ task.found ? '正解' : '未ピック' }}
@@ -3334,6 +3338,8 @@
         const slipCount = computed(() => state.practice?.slips?.length || 0);
         const correctCount = computed(() => summary.value.correctCount);
         const totalTasks = computed(() => summary.value.totalTasks);
+        const totalQuantity = computed(() => state.practice?.totalQuantity || 0);
+        const pickedQuantity = computed(() => state.practice?.pickedQuantity || 0);
 
         const durationText = computed(() => {
           const p = state.practice;
@@ -3448,6 +3454,8 @@
           slipCount,
           correctCount,
           totalTasks,
+          totalQuantity,
+          pickedQuantity,
           durationText,
           verifiedText,
           slipResults,
@@ -3533,11 +3541,12 @@
                     </div>
                     <div class="history-item-body">
                       <div class="history-item-top">
-                        <span class="history-item-score">{{ item.correct }}/{{ item.total }}問正解</span>
+                        <span class="history-item-score">{{ item.correct }}/{{ item.total }}品目正解</span>
                         <span class="history-item-date">{{ formatDate(item.date) }}</span>
                       </div>
                       <div class="history-item-meta">
                         <span>{{ item.slipCount || '?' }}枚</span>
+                        <span v-if="item.pickedQuantity != null">{{ item.pickedQuantity }}/{{ item.totalQuantity }}個</span>
                         <span>{{ formatDuration(item.duration) }}</span>
                         <span v-if="item.slipsDetail" style="color:var(--color-primary);font-weight:600;">{{ openDetailId === item.id ? '▲ 閉じる' : '▼ 詳細' }}</span>
                       </div>
@@ -3562,7 +3571,7 @@
                         </div>
                         <div class="review-task-body">
                           <div class="review-task-name">{{ task.name }}</div>
-                          <div class="review-task-detail">コード: {{ task.code }}　数量: {{ task.quantity }}</div>
+                          <div class="review-task-detail">コード: {{ task.code }}　数量: {{ task.verifiedQuantity != null ? task.verifiedQuantity : '?' }}/{{ task.quantity }}</div>
                         </div>
                         <div class="review-task-status" :class="task.found ? 'correct' : 'wrong'">
                           {{ task.found ? '正解' : '未ピック' }}
@@ -4278,9 +4287,16 @@
               ? Math.round((summary.correctCount / summary.totalTasks) * 100)
               : 0;
 
+            // ピッキング個数の集計
+            const allTasks = state.practice.slips.flatMap(s => s.tasks);
+            const totalQuantity = allTasks.reduce((sum, t) => sum + t.quantity, 0);
+            const pickedQuantity = allTasks.reduce((sum, t) => sum + Math.min(t.verifiedQuantity || 0, t.quantity), 0);
+
             state.practice.score = score;
             state.practice.correctCount = summary.correctCount;
             state.practice.totalTasks = summary.totalTasks;
+            state.practice.totalQuantity = totalQuantity;
+            state.practice.pickedQuantity = pickedQuantity;
 
             const bestScore = window.PickingTrainer.getBestScore(
               state.history,
@@ -4296,6 +4312,7 @@
                 name: t.product.name,
                 code: t.product.code,
                 quantity: t.quantity,
+                verifiedQuantity: t.verifiedQuantity || 0,
                 found: t.found
               }))
             }));
@@ -4310,6 +4327,8 @@
               total: summary.totalTasks,
               duration: state.practice.endTime - state.practice.startTime,
               verified: state.practice.verifiedCount,
+              totalQuantity: totalQuantity,
+              pickedQuantity: pickedQuantity,
               slipCount: state.practice.slips.length,
               itemsPerSlip: state.practice.slips[0]?.tasks.length || 0,
               slipsDetail: slipsDetail
