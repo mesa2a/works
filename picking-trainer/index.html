@@ -3274,20 +3274,6 @@
             </div>
           </div>
 
-          <!-- 伝票ごとの検品結果 -->
-          <div class="card" v-if="verificationDetails.length > 0">
-            <div class="result-slips-title">
-              <span v-html="icons.clipboardCheck"></span> 伝票ごとの検品結果
-            </div>
-            <div v-for="detail in verificationDetails" :key="detail.slipNumber" class="result-slip-row">
-              <span class="slip-label">伝票{{ detail.slipNumber }}</span>
-              <div class="slip-bar-wrap">
-                <div class="slip-bar-fill" :class="detail.barClass" :style="{ width: detail.percent + '%' }"></div>
-              </div>
-              <span class="slip-score">{{ detail.status === 'skipped' ? 'スキップ' : detail.verifiedCount + '/' + detail.totalTasks }}</span>
-            </div>
-          </div>
-
           <!-- 振り返り -->
           <div class="card review-section" v-if="reviewSlips.length > 0">
             <button class="review-toggle" @click="reviewOpen = !reviewOpen">
@@ -3457,29 +3443,6 @@
           return '正解';
         };
 
-        // 伝票ごとの検品結果
-        const verificationDetails = computed(() => {
-          const p = state.practice;
-          if (!p || !p.slips) return [];
-          const summary = window.PickingTrainer.getSlipVerificationSummary(p.slips);
-          return summary.slipDetails.map(detail => {
-            let barClass = 'bar-bad';
-            if (detail.status === 'skipped') {
-              barClass = 'bar-skipped';
-            } else if (detail.percent >= 80) {
-              barClass = 'bar-perfect';
-            } else if (detail.percent >= 60) {
-              barClass = 'bar-good';
-            } else if (detail.percent >= 40) {
-              barClass = 'bar-warn';
-            }
-            return {
-              ...detail,
-              barClass
-            };
-          });
-        });
-
         const showNotify = inject('showNotify');
         const restartPractice = () => {
           const validation = window.PickingTrainer.validateSlipGeneration(
@@ -3522,7 +3485,7 @@
           reviewSlips,
           taskStatusClass,
           taskStatusLabel,
-          verificationDetails,
+
           restartPractice,
           icons
         };
