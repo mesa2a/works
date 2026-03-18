@@ -1400,14 +1400,31 @@
       border-radius: var(--radius-sm);
     }
 
-    /* 検品スキャナー sticky */
-    .scanner-sticky {
-      position: sticky;
-      top: var(--header-height, 96px);
-      z-index: 50;
-      padding: 8px 0;
-      margin: 0 auto 12px;
-      max-width: 600px;
+    /* 検品スキャナー fixed */
+    .scanner-fixed {
+      position: fixed;
+      top: var(--header-height, 56px);
+      left: 0;
+      right: 0;
+      z-index: 90;
+      background: var(--color-gray-50);
+      padding: 8px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .scanner-fixed .card {
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    .scanner-fixed #scanner-container {
+      max-width: 100%;
+      margin: 0 auto 8px;
+    }
+
+    .scanner-fixed-spacer {
+      height: 220px;
     }
 
     /* ボトムナビ */
@@ -2664,13 +2681,19 @@
             </div>
           </div>
 
-          <div class="scanner-sticky">
-            <div class="card" style="margin-bottom:0;">
+          <div v-if="scannerActive" class="scanner-fixed">
+            <div class="card">
               <div id="scanner-container"></div>
-              <button class="btn btn-secondary" @click="toggleScanner">
-                <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
+              <button class="btn btn-secondary btn-small" @click="toggleScanner" style="width:100%;">
+                <span v-html="icons.squareStop"></span> スキャンを停止
               </button>
             </div>
+          </div>
+          <div v-if="scannerActive" class="scanner-fixed-spacer"></div>
+          <div v-if="!scannerActive" class="card">
+            <button class="btn btn-secondary" @click="toggleScanner" style="width:100%;">
+              <span v-html="icons.camera"></span> スキャンを開始
+            </button>
           </div>
 
           <div class="card">
