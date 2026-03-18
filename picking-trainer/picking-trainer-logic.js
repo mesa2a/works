@@ -203,13 +203,13 @@
       );
     }
 
-    // 在庫合計 vs 必要最小数量
+    // 在庫合計 vs 必要最大数量（最悪ケースで全タスクが range.max になっても足りるか）
     var totalStock = available.reduce(function (sum, p) { return sum + (p.stock ?? 99); }, 0);
-    var minRequired = slipCount * itemsPerSlip * range.min;
+    var maxRequired = slipCount * itemsPerSlip * range.max;
 
-    if (totalStock < minRequired) {
+    if (totalStock < maxRequired) {
       errors.push(
-        '在庫合計（' + totalStock + '個）が必要最小数量（' + minRequired + '個）に足りません。' +
+        '在庫合計（' + totalStock + '個）が必要数量（最大' + maxRequired + '個）に足りません。' +
         '伝票数や数量レベルを調整してください。'
       );
     }

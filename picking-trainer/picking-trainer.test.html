@@ -1071,6 +1071,15 @@
           expect(task.quantity).to.be.at.most(3);
         });
       });
+
+      it('全伝票が指定された商品数を持っている', () => {
+        for (let i = 0; i < 20; i++) {
+          const slips = PT.generateSlips(products, 3, 3, 'high');
+          slips.forEach(slip => {
+            expect(slip.tasks).to.have.length(3);
+          });
+        }
+      });
     });
 
     // =============================================
@@ -1107,41 +1116,42 @@
         expect(result.valid).to.be.false;
       });
 
-      it('在庫合計が必要最小数量に満たない場合 valid: false を返す', () => {
+      it('在庫合計が最大数量で足りない場合 valid: false を返す', () => {
         const products = [
           { code: 'P1', name: 'Product 1', stock: 2 },
           { code: 'P2', name: 'Product 2', stock: 2 },
         ];
-        // 伝票5枚 × 2品 × low最小1個 = 最小10個必要、在庫合計4
+        // 伝票5枚 × 2品 × low最大3個 = 最大30個必要、在庫合計4
         const result = PT.validateSlipGeneration(products, 5, 2, 'low');
         expect(result.valid).to.be.false;
       });
 
-      it('在庫合計がギリギリ足りる場合 valid: true を返す', () => {
+      it('在庫合計が最大数量で足りる場合 valid: true を返す', () => {
         const products = [
-          { code: 'P1', name: 'Product 1', stock: 5 },
-          { code: 'P2', name: 'Product 2', stock: 5 },
+          { code: 'P1', name: 'Product 1', stock: 20 },
+          { code: 'P2', name: 'Product 2', stock: 20 },
         ];
-        // 伝票2枚 × 2品 × low最小1個 = 最小4個必要、在庫合計10
+        // 伝票2枚 × 2品 × low最大3個 = 最大12個必要、在庫合計40
         const result = PT.validateSlipGeneration(products, 2, 2, 'low');
         expect(result.valid).to.be.true;
       });
 
-      it('quantityLevel "high" で在庫が足りない場合 valid: false を返す', () => {
+      it('quantityLevel "high" で最大数量に在庫が足りない場合 valid: false を返す', () => {
         const products = [
-          { code: 'P1', name: 'Product 1', stock: 10 },
-          { code: 'P2', name: 'Product 2', stock: 10 },
+          { code: 'P1', name: 'Product 1', stock: 30 },
+          { code: 'P2', name: 'Product 2', stock: 30 },
         ];
-        // high: min=5, 伝票3枚 × 2品 × 5個 = 30個必要、在庫合計20
+        // high: max=15, 伝票3枚 × 2品 × 15個 = 90個必要、在庫合計60
         const result = PT.validateSlipGeneration(products, 3, 2, 'high');
         expect(result.valid).to.be.false;
       });
 
       it('quantityLevel 未指定の場合 "low" として計算する', () => {
         const products = [
-          { code: 'P1', name: 'Product 1', stock: 5 },
-          { code: 'P2', name: 'Product 2', stock: 5 },
+          { code: 'P1', name: 'Product 1', stock: 10 },
+          { code: 'P2', name: 'Product 2', stock: 10 },
         ];
+        // low: max=3, 2枚 × 2品 × 3個 = 12必要、在庫合計20 → valid
         const result = PT.validateSlipGeneration(products, 2, 2);
         expect(result.valid).to.be.true;
       });
