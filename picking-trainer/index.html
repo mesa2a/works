@@ -4443,7 +4443,7 @@
             // 検品結果をピッキング結果(found)に反映
             slip.tasks.forEach(t => {
               const vq = t.verifiedQuantity || 0;
-              t.found = vq >= t.quantity;
+              t.found = vq === t.quantity;
               t.completed = true;
             });
 
