@@ -2780,7 +2780,7 @@
         // デバウンス用
         let lastScanCode = '';
         let lastScanTime = 0;
-        const SCAN_DEBOUNCE_MS = 1000;
+        const SCAN_DEBOUNCE_MS = 2000;
 
         // スクロール・ハイライト用ref管理
         const taskRefs = {};
@@ -2843,14 +2843,7 @@
             return;
           }
 
-          if (isTaskComplete(task)) {
-            // 既に検品完了済み
-            showScanToast('検品済み: ' + task.product.name, 'warning');
-            highlightTask(task);
-            return;
-          }
-
-          // 検品カウントアップ
+          // 検品カウントアップ（超過も許可）
           incrementVerified(task);
           const vq = task.verifiedQuantity || 0;
           const complete = vq >= task.quantity;
