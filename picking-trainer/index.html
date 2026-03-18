@@ -2488,6 +2488,14 @@
                 <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.itemsPerSlip === 25 ? 'btn-primary' : 'btn-secondary'" @click="state.itemsPerSlip = 25">25品</button>
               </div>
             </div>
+            <div class="input-group">
+              <label>1品あたりの数量</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.quantityLevel === 'low' ? 'btn-primary' : 'btn-secondary'" @click="state.quantityLevel = 'low'">少なめ (1〜3)</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.quantityLevel === 'mid' ? 'btn-primary' : 'btn-secondary'" @click="state.quantityLevel = 'mid'">ふつう (3〜8)</button>
+                <button type="button" class="btn btn-small" style="flex:1;width:auto;margin-bottom:0;min-width:0;" :class="state.quantityLevel === 'high' ? 'btn-primary' : 'btn-secondary'" @click="state.quantityLevel = 'high'">多め (5〜15)</button>
+              </div>
+            </div>
           </div>
 
           <div class="card">
@@ -4131,6 +4139,7 @@
           history: [],
           slipCount: 3,
           itemsPerSlip: 5,
+          quantityLevel: 'low',
           practice: null,
           productTab: 'list',
           verificationSlipIndex: null
@@ -4168,6 +4177,7 @@
               const s = JSON.parse(settings);
               state.slipCount = s.slipCount || 3;
               state.itemsPerSlip = s.itemsPerSlip || 5;
+              state.quantityLevel = s.quantityLevel || 'low';
             }
 
             const practice = localStorage.getItem(STORAGE_KEYS.practice);
@@ -4204,7 +4214,8 @@
 
         watch(() => ({
           slipCount: state.slipCount,
-          itemsPerSlip: state.itemsPerSlip
+          itemsPerSlip: state.itemsPerSlip,
+          quantityLevel: state.quantityLevel
         }), (val) => {
           localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(val));
         }, { deep: true });
@@ -4223,7 +4234,8 @@
             const slips = window.PickingTrainer.generateSlips(
               state.products,
               state.slipCount,
-              state.itemsPerSlip
+              state.itemsPerSlip,
+              state.quantityLevel
             );
             state.practice = {
               slips: slips,

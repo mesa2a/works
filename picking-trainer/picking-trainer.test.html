@@ -993,6 +993,86 @@
       });
     });
 
+    // =============================================
+    // Phase 数量レベル: generateTaskWithStock / generateSlips のテスト
+    // =============================================
+    describe('generateTaskWithStock（quantityLevel 対応）', () => {
+      const products = [
+        { code: 'P1', name: 'Product 1', stock: 50 },
+        { code: 'P2', name: 'Product 2', stock: 50 },
+      ];
+
+      it('quantityLevel 未指定の場合 1〜3 の範囲で数量を生成する', () => {
+        for (let i = 0; i < 50; i++) {
+          const remaining = { P1: 50, P2: 50 };
+          const task = PT.generateTaskWithStock(products, remaining);
+          expect(task.quantity).to.be.at.least(1);
+          expect(task.quantity).to.be.at.most(3);
+        }
+      });
+
+      it('quantityLevel "low" の場合 1〜3 の範囲で数量を生成する', () => {
+        for (let i = 0; i < 50; i++) {
+          const remaining = { P1: 50, P2: 50 };
+          const task = PT.generateTaskWithStock(products, remaining, null, 'low');
+          expect(task.quantity).to.be.at.least(1);
+          expect(task.quantity).to.be.at.most(3);
+        }
+      });
+
+      it('quantityLevel "mid" の場合 3〜8 の範囲で数量を生成する', () => {
+        for (let i = 0; i < 50; i++) {
+          const remaining = { P1: 50, P2: 50 };
+          const task = PT.generateTaskWithStock(products, remaining, null, 'mid');
+          expect(task.quantity).to.be.at.least(3);
+          expect(task.quantity).to.be.at.most(8);
+        }
+      });
+
+      it('quantityLevel "high" の場合 5〜15 の範囲で数量を生成する', () => {
+        for (let i = 0; i < 50; i++) {
+          const remaining = { P1: 50, P2: 50 };
+          const task = PT.generateTaskWithStock(products, remaining, null, 'high');
+          expect(task.quantity).to.be.at.least(5);
+          expect(task.quantity).to.be.at.most(15);
+        }
+      });
+
+      it('在庫が数量範囲の最大値より少ない場合、在庫以下になる', () => {
+        const remaining = { P1: 2 };
+        const productsSmall = [{ code: 'P1', name: 'Product 1', stock: 2 }];
+        const task = PT.generateTaskWithStock(productsSmall, remaining, null, 'high');
+        expect(task.quantity).to.be.at.least(1);
+        expect(task.quantity).to.be.at.most(2);
+      });
+    });
+
+    describe('generateSlips（quantityLevel 対応）', () => {
+      const products = [
+        { code: 'P1', name: 'Product 1', stock: 99 },
+        { code: 'P2', name: 'Product 2', stock: 99 },
+        { code: 'P3', name: 'Product 3', stock: 99 },
+      ];
+
+      it('quantityLevel を渡すとタスクの数量に反映される', () => {
+        const slips = PT.generateSlips(products, 2, 3, 'high');
+        const allTasks = slips.flatMap(s => s.tasks);
+        allTasks.forEach(task => {
+          expect(task.quantity).to.be.at.least(5);
+          expect(task.quantity).to.be.at.most(15);
+        });
+      });
+
+      it('quantityLevel 未指定の場合はデフォルト（1〜3）になる', () => {
+        const slips = PT.generateSlips(products, 2, 3);
+        const allTasks = slips.flatMap(s => s.tasks);
+        allTasks.forEach(task => {
+          expect(task.quantity).to.be.at.least(1);
+          expect(task.quantity).to.be.at.most(3);
+        });
+      });
+    });
+
   </script>
 
   <script>

@@ -104,13 +104,23 @@
   // =============================================
 
   /**
+   * 数量レベルごとの範囲定義
+   */
+  var QUANTITY_RANGES = {
+    low:  { min: 1, max: 3 },
+    mid:  { min: 3, max: 8 },
+    high: { min: 5, max: 15 }
+  };
+
+  /**
    * 残在庫を考慮して1タスクを生成する
    * @param {Array} products - 商品マスタ
    * @param {Object} remainingStock - { code: 残在庫数 } の辞書（破壊的に更新される）
    * @param {Set} [usedCodes] - 同一伝票内で既に使用した商品コードのSet
+   * @param {string} [quantityLevel] - 数量レベル ('low' | 'mid' | 'high')
    * @returns {Object|null} タスク or null（在庫切れ）
    */
-  function generateTaskWithStock(products, remainingStock, usedCodes) {
+  function generateTaskWithStock(products, remainingStock, usedCodes, quantityLevel) {
     let available = products.filter(p => (remainingStock[p.code] ?? (p.stock ?? 99)) > 0);
     if (usedCodes) {
       available = available.filter(p => !usedCodes.has(p.code));
@@ -119,7 +129,12 @@
 
     const product = available[Math.floor(Math.random() * available.length)];
     const stock = remainingStock[product.code] ?? (product.stock ?? 99);
-    const quantity = Math.min(Math.floor(Math.random() * 3) + 1, stock);
+    var range = QUANTITY_RANGES[quantityLevel] || QUANTITY_RANGES.low;
+    var min = Math.min(range.min, stock);
+    var max = Math.min(range.max, stock);
+    if (min < 1) min = 1;
+    if (max < min) max = min;
+    const quantity = Math.floor(Math.random() * (max - min + 1)) + min;
     remainingStock[product.code] = stock - quantity;
 
     return {
@@ -133,7 +148,7 @@
   /**
    * 指定された伝票数・商品数で伝票群を生成する（在庫累積チェック付き）
    */
-  function generateSlips(products, slipCount, itemsPerSlip) {
+  function generateSlips(products, slipCount, itemsPerSlip, quantityLevel) {
     const remainingStock = {};
     products.forEach(p => {
       remainingStock[p.code] = p.stock ?? 99;
@@ -144,7 +159,7 @@
       const tasks = [];
       const usedCodes = new Set();
       for (let j = 0; j < itemsPerSlip; j++) {
-        const task = generateTaskWithStock(products, remainingStock, usedCodes);
+        const task = generateTaskWithStock(products, remainingStock, usedCodes, quantityLevel);
         if (task) {
           usedCodes.add(task.product.code);
           tasks.push(task);
@@ -359,6 +374,7 @@
     trimHistory,
     generateRandomTask,
     generateRandomTasks,
+    generateTaskWithStock,
     generateSlips,
     isAllSlipsCompleted,
     getSlipsSummary,
