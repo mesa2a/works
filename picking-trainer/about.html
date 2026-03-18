@@ -348,87 +348,48 @@
     }
 
     /* =============================================
-       課題→解決
+       課題→解決（ペア形式）
        ============================================= */
-    .challenge-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 32px;
-    }
-
-    .challenge-col h3 {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.875rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      padding: 6px 16px;
-      border-radius: 20px;
-    }
-
-    .challenge-col h3 .lp-icon {
-      width: 16px;
-      height: 16px;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-    }
-
-    .challenge-col.problems h3 {
-      background: var(--color-danger-light);
-      color: var(--color-danger);
-    }
-
-    .challenge-col.problems h3 .lp-icon {
-      stroke: var(--color-danger);
-    }
-
-    .challenge-col.solutions h3 {
-      background: var(--color-success-light);
-      color: var(--color-success);
-    }
-
-    .challenge-col.solutions h3 .lp-icon {
-      stroke: var(--color-success);
-    }
-
-    .challenge-list {
+    .challenge-pairs {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
-    .challenge-item {
+    .challenge-pair {
       background: var(--color-white);
       border: 1px solid var(--color-gray-200);
-      border-radius: 14px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .challenge-pair:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.10);
+    }
+
+    .challenge-pair-problem {
       padding: 20px 24px;
       display: flex;
       gap: 14px;
       align-items: flex-start;
-      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-    }
-
-    .challenge-item:hover {
-      border-color: var(--color-primary);
-      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.12);
-    }
-
-    .problems .challenge-item {
       border-left: 3px solid var(--color-danger);
+      background: var(--color-danger-light);
     }
 
-    .solutions .challenge-item {
+    .challenge-pair-solution {
+      padding: 20px 24px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
       border-left: 3px solid var(--color-success);
     }
 
-    .section-bg .challenge-item {
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-
-    .challenge-item .item-icon {
+    .challenge-pair-icon {
       flex-shrink: 0;
       width: 40px;
       height: 40px;
@@ -438,7 +399,7 @@
       border-radius: 10px;
     }
 
-    .challenge-item .item-icon .lp-icon {
+    .challenge-pair-icon .lp-icon {
       width: 20px;
       height: 20px;
       stroke-width: 2;
@@ -447,23 +408,43 @@
       fill: none;
     }
 
-    .problems .challenge-item .item-icon {
-      background: var(--color-danger-light);
+    .challenge-pair-problem .challenge-pair-icon {
+      background: rgba(239, 68, 68, 0.12);
     }
 
-    .problems .challenge-item .item-icon .lp-icon {
+    .challenge-pair-problem .challenge-pair-icon .lp-icon {
       stroke: var(--color-danger);
     }
 
-    .solutions .challenge-item .item-icon {
+    .challenge-pair-solution .challenge-pair-icon {
       background: var(--color-success-light);
     }
 
-    .solutions .challenge-item .item-icon .lp-icon {
+    .challenge-pair-solution .challenge-pair-icon .lp-icon {
       stroke: var(--color-success);
     }
 
-    .challenge-item .item-text strong {
+    .challenge-pair-label {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .challenge-pair-problem .challenge-pair-label {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--color-danger);
+    }
+
+    .challenge-pair-solution .challenge-pair-label {
+      background: var(--color-success-light);
+      color: var(--color-success);
+    }
+
+    .challenge-pair-text strong {
       display: block;
       font-size: 0.9375rem;
       font-weight: 700;
@@ -471,10 +452,29 @@
       margin-bottom: 2px;
     }
 
-    .challenge-item .item-text p {
+    .challenge-pair-text p {
       font-size: 0.8125rem;
       color: var(--color-gray-500);
       line-height: 1.7;
+      margin: 0;
+    }
+
+    .challenge-pair-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      color: var(--color-gray-300);
+    }
+
+    .challenge-pair-arrow .lp-icon {
+      width: 18px;
+      height: 18px;
+      stroke: var(--color-gray-300);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
     }
 
     /* =============================================
@@ -888,10 +888,6 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
-      .challenge-row {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
       .scene-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -993,7 +989,7 @@
         <div class="stat-label">商品登録方法</div>
       </div>
       <div class="stat-item">
-        <div class="stat-number">5<span>STEP</span></div>
+        <div class="stat-number">6<span>STEP</span></div>
         <div class="stat-label">かんたん操作</div>
       </div>
       <div class="stat-item">
@@ -1014,92 +1010,111 @@
         <p>物流業界の人材育成における課題をテクノロジーでサポート</p>
       </div>
 
-      <div class="challenge-row">
-        <div class="challenge-col problems">
-          <h3>
-            <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-            現場の課題
-          </h3>
-          <div class="challenge-list">
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>専用訓練室の制約</strong>
-                <p>倉庫を模した訓練室の設備維持にコストがかかり、予約や移動にも時間を要します。</p>
-              </div>
+      <div class="challenge-pairs">
+        <!-- ペア1: 訓練室 → 身近な物 -->
+        <div class="challenge-pair">
+          <div class="challenge-pair-problem">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>自宅で復習できない</strong>
-                <p>訓練施設でしか練習ができず、受講生が自宅で繰り返し練習する手段がありません。</p>
-              </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">課題</span>
+              <strong>専用訓練室の制約</strong>
+              <p>倉庫を模した訓練室の設備維持にコストがかかり、予約や移動にも時間を要します。</p>
             </div>
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>習熟度にばらつき</strong>
-                <p>受講生ごとの練習量や進捗が把握しにくく、個別指導が難しい状況です。</p>
-              </div>
+          </div>
+          <div class="challenge-pair-arrow">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          </div>
+          <div class="challenge-pair-solution">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="M3.29 7 12 12 20.71 7"/></svg>
             </div>
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>PCやソフトの環境に依存</strong>
-                <p>商品リストの準備にExcelが必要だと、Excelが入っていないPCやスマホでは使えません。</p>
-              </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">解決</span>
+              <strong>身近な物で練習可能</strong>
+              <p>ペットボトルや文房具を商品として登録し、教室や自宅の棚を倉庫に見立てて練習できます。</p>
             </div>
           </div>
         </div>
-        <div class="challenge-col solutions">
-          <h3>
-            <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-            このアプリの解決策
-          </h3>
-          <div class="challenge-list">
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>身近な物で練習可能</strong>
-                <p>ペットボトルや文房具を商品として登録し、教室や自宅の棚を倉庫に見立てて練習できます。</p>
-              </div>
+
+        <!-- ペア2: 自宅で復習できない → いつでもどこでも -->
+        <div class="challenge-pair">
+          <div class="challenge-pair-problem">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
             </div>
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>いつでもどこでも</strong>
-                <p>スマートフォンがあれば教室でも自宅でも練習可能。十分な練習量を確保できます。</p>
-              </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">課題</span>
+              <strong>自宅で復習できない</strong>
+              <p>訓練施設でしか練習ができず、受講生が自宅で繰り返し練習する手段がありません。</p>
             </div>
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>進捗を可視化</strong>
-                <p>練習履歴がユーザーごとに自動記録され、成長の推移をいつでも振り返れます。</p>
-              </div>
+          </div>
+          <div class="challenge-pair-arrow">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          </div>
+          <div class="challenge-pair-solution">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
             </div>
-            <div class="challenge-item">
-              <div class="item-icon">
-                <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-              </div>
-              <div class="item-text">
-                <strong>Excel・専用ソフト一切不要</strong>
-                <p>ブラウザだけで完結。Excelが入っていないPCやスマホからでもすぐに使えます。</p>
-              </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">解決</span>
+              <strong>いつでもどこでも</strong>
+              <p>スマートフォンがあれば教室でも自宅でも練習可能。十分な練習量を確保できます。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ペア3: 習熟度のばらつき → 進捗を可視化 -->
+        <div class="challenge-pair">
+          <div class="challenge-pair-problem">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">課題</span>
+              <strong>習熟度にばらつき</strong>
+              <p>受講生ごとの練習量や進捗が把握しにくく、個別指導が難しい状況です。</p>
+            </div>
+          </div>
+          <div class="challenge-pair-arrow">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          </div>
+          <div class="challenge-pair-solution">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">解決</span>
+              <strong>進捗を可視化</strong>
+              <p>練習履歴がユーザーごとに自動記録され、成長の推移をいつでも振り返れます。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ペア4: PC・ソフト依存 → 不要 -->
+        <div class="challenge-pair">
+          <div class="challenge-pair-problem">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">課題</span>
+              <strong>PCやソフトの環境に依存</strong>
+              <p>商品リストの準備にExcelが必要だと、Excelが入っていないPCやスマホでは使えません。</p>
+            </div>
+          </div>
+          <div class="challenge-pair-arrow">
+            <svg class="lp-icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          </div>
+          <div class="challenge-pair-solution">
+            <div class="challenge-pair-icon">
+              <svg class="lp-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            </div>
+            <div class="challenge-pair-text">
+              <span class="challenge-pair-label">解決</span>
+              <strong>Excel・専用ソフト一切不要</strong>
+              <p>ブラウザだけで完結。Excelが入っていないPCやスマホからでもすぐに使えます。</p>
             </div>
           </div>
         </div>
@@ -1223,7 +1238,7 @@
       <div class="section-header">
         <div class="section-label">Getting Started</div>
         <h2>はじめに</h2>
-        <p>かんたん5ステップで練習開始</p>
+        <p>かんたん6ステップで練習開始</p>
       </div>
       <div class="steps">
         <div class="step">
@@ -1244,7 +1259,7 @@
           <div class="step-number">3</div>
           <div class="step-content">
             <h3>練習設定を行う</h3>
-            <p>ホーム画面で伝票数と伝票1枚の商品数を選択し、「練習を開始」をタップします。</p>
+            <p>ホーム画面で伝票数・伝票1枚の商品数・1品あたりの数量レベル（少なめ/ふつう/多め）を選択し、「練習を開始」をタップします。</p>
           </div>
         </div>
         <div class="step">
@@ -1257,8 +1272,15 @@
         <div class="step">
           <div class="step-number">5</div>
           <div class="step-content">
-            <h3>検品して結果を確認</h3>
-            <p>バーコードスキャンで検品を行い、結果画面でスコア・正解数・所要時間を確認。練習を重ねてスコアアップを目指しましょう。</p>
+            <h3>検品・ミス記録</h3>
+            <p>伝票ごとにバーコードスキャンで検品を行います。数量の過不足も記録され、商品違いや破損などのミスがあればタグとメモで記録できます。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">6</div>
+          <div class="step-content">
+            <h3>結果を確認</h3>
+            <p>スコア・正解品目・所要時間を確認。振り返りで各商品の正解/超過/不足/未ピックやミス記録の詳細もチェックできます。</p>
           </div>
         </div>
       </div>
