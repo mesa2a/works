@@ -177,6 +177,47 @@
   }
 
   /**
+   * 伝票生成前の在庫チェック
+   * @param {Array} products - 商品マスタ
+   * @param {number} slipCount - 伝票数
+   * @param {number} itemsPerSlip - 1伝票あたりの商品数
+   * @param {string} [quantityLevel] - 数量レベル
+   * @returns {Object} { valid: boolean, errors: string[] }
+   */
+  function validateSlipGeneration(products, slipCount, itemsPerSlip, quantityLevel) {
+    var errors = [];
+    var range = QUANTITY_RANGES[quantityLevel] || QUANTITY_RANGES.low;
+
+    // 在庫のある商品のみ
+    var available = products.filter(function (p) { return (p.stock ?? 99) > 0; });
+
+    if (available.length === 0) {
+      errors.push('在庫のある商品がありません。');
+      return { valid: false, errors: errors };
+    }
+
+    // 商品種類チェック: 1伝票内で同一商品は使えないため
+    if (available.length < itemsPerSlip) {
+      errors.push(
+        '1伝票あたり' + itemsPerSlip + '品必要ですが、在庫のある商品が' + available.length + '種類しかありません。'
+      );
+    }
+
+    // 在庫合計 vs 必要最小数量
+    var totalStock = available.reduce(function (sum, p) { return sum + (p.stock ?? 99); }, 0);
+    var minRequired = slipCount * itemsPerSlip * range.min;
+
+    if (totalStock < minRequired) {
+      errors.push(
+        '在庫合計（' + totalStock + '個）が必要最小数量（' + minRequired + '個）に足りません。' +
+        '伝票数や数量レベルを調整してください。'
+      );
+    }
+
+    return { valid: errors.length === 0, errors: errors };
+  }
+
+  /**
    * 全伝票が完了しているか判定する
    */
   function isAllSlipsCompleted(slips) {
@@ -376,6 +417,7 @@
     generateRandomTasks,
     generateTaskWithStock,
     generateSlips,
+    validateSlipGeneration,
     isAllSlipsCompleted,
     getSlipsSummary,
     getSlipVerificationSummary,

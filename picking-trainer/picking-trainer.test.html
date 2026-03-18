@@ -1073,6 +1073,85 @@
       });
     });
 
+    // =============================================
+    // Phase 在庫不足チェック: validateSlipGeneration のテスト
+    // =============================================
+    describe('validateSlipGeneration', () => {
+      it('在庫が十分な場合 valid: true を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 50 },
+          { code: 'P2', name: 'Product 2', stock: 50 },
+          { code: 'P3', name: 'Product 3', stock: 50 },
+        ];
+        const result = PT.validateSlipGeneration(products, 3, 3, 'low');
+        expect(result.valid).to.be.true;
+        expect(result.errors).to.have.length(0);
+      });
+
+      it('商品種類が伝票1枚あたりの商品数より少ない場合 valid: false を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 50 },
+        ];
+        // 1枚あたり3品必要だが商品は1種類しかない
+        const result = PT.validateSlipGeneration(products, 1, 3, 'low');
+        expect(result.valid).to.be.false;
+        expect(result.errors.length).to.be.at.least(1);
+      });
+
+      it('在庫0の商品しかない場合 valid: false を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 0 },
+          { code: 'P2', name: 'Product 2', stock: 0 },
+        ];
+        const result = PT.validateSlipGeneration(products, 1, 1, 'low');
+        expect(result.valid).to.be.false;
+      });
+
+      it('在庫合計が必要最小数量に満たない場合 valid: false を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 2 },
+          { code: 'P2', name: 'Product 2', stock: 2 },
+        ];
+        // 伝票5枚 × 2品 × low最小1個 = 最小10個必要、在庫合計4
+        const result = PT.validateSlipGeneration(products, 5, 2, 'low');
+        expect(result.valid).to.be.false;
+      });
+
+      it('在庫合計がギリギリ足りる場合 valid: true を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 5 },
+          { code: 'P2', name: 'Product 2', stock: 5 },
+        ];
+        // 伝票2枚 × 2品 × low最小1個 = 最小4個必要、在庫合計10
+        const result = PT.validateSlipGeneration(products, 2, 2, 'low');
+        expect(result.valid).to.be.true;
+      });
+
+      it('quantityLevel "high" で在庫が足りない場合 valid: false を返す', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 10 },
+          { code: 'P2', name: 'Product 2', stock: 10 },
+        ];
+        // high: min=5, 伝票3枚 × 2品 × 5個 = 30個必要、在庫合計20
+        const result = PT.validateSlipGeneration(products, 3, 2, 'high');
+        expect(result.valid).to.be.false;
+      });
+
+      it('quantityLevel 未指定の場合 "low" として計算する', () => {
+        const products = [
+          { code: 'P1', name: 'Product 1', stock: 5 },
+          { code: 'P2', name: 'Product 2', stock: 5 },
+        ];
+        const result = PT.validateSlipGeneration(products, 2, 2);
+        expect(result.valid).to.be.true;
+      });
+
+      it('商品が空の場合 valid: false を返す', () => {
+        const result = PT.validateSlipGeneration([], 1, 1, 'low');
+        expect(result.valid).to.be.false;
+      });
+    });
+
   </script>
 
   <script>

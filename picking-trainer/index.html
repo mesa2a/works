@@ -4231,6 +4231,16 @@
         // アクション
         const actions = {
           startSlipMode() {
+            const validation = window.PickingTrainer.validateSlipGeneration(
+              state.products,
+              state.slipCount,
+              state.itemsPerSlip,
+              state.quantityLevel
+            );
+            if (!validation.valid) {
+              showNotify('伝票を生成できません', validation.errors.join('\n'));
+              return;
+            }
             const slips = window.PickingTrainer.generateSlips(
               state.products,
               state.slipCount,
