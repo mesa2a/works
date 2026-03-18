@@ -2207,7 +2207,7 @@
     <div v-if="notify.visible" class="modal-overlay" @click.self="closeNotify">
       <div class="modal-content">
         <div class="modal-title">{{ notify.title }}</div>
-        <div class="modal-body">{{ notify.message }}</div>
+        <div class="modal-body" style="white-space:pre-line;">{{ notify.message }}</div>
         <div class="modal-actions">
           <button class="btn btn-primary" @click="closeNotify">OK</button>
         </div>
@@ -2510,7 +2510,7 @@
           <div v-if="modal.visible" class="modal-overlay" @click.self="closeModal">
             <div class="modal-content">
               <div class="modal-title">{{ modal.title }}</div>
-              <div class="modal-body">
+              <div class="modal-body" style="white-space:pre-line;">
                 <div>{{ modal.message }}</div>
                 <div v-if="modal.detail" class="modal-detail">{{ modal.detail }}</div>
               </div>
@@ -2559,29 +2559,17 @@
             return;
           }
 
-          const availableProducts = state.products.filter(p => (p.stock ?? 99) > 0);
-          if (availableProducts.length === 0) {
-            showModal('在庫なし', '在庫のある商品がありません。「商品」タブから在庫数を設定してください。');
-            return;
-          }
-
-          if (availableProducts.length < state.itemsPerSlip) {
+          const validation = window.PickingTrainer.validateSlipGeneration(
+            state.products,
+            state.slipCount,
+            state.itemsPerSlip,
+            state.quantityLevel
+          );
+          if (!validation.valid) {
             showModal(
-              '商品種類が不足',
-              `伝票1枚の商品数（${state.itemsPerSlip}品）が、在庫のある商品の種類数（${availableProducts.length}種類）を超えています。伝票1枚の商品数を減らすか、「商品」タブから商品を追加してください。`,
-              `伝票1枚の商品数: ${state.itemsPerSlip}品\n在庫あり商品: ${availableProducts.length}種類`
-            );
-            return;
-          }
-
-          const totalStock = availableProducts.reduce((sum, p) => sum + (p.stock ?? 99), 0);
-          const requestedTasks = state.slipCount * state.itemsPerSlip;
-
-          if (totalStock < requestedTasks) {
-            showModal(
-              '在庫が不足しています',
-              '在庫数が足りないため練習を開始できません。伝票数・商品数を減らすか、「商品」タブから在庫を追加してください。',
-              `要求: ${state.slipCount}枚 × ${state.itemsPerSlip}品 = ${requestedTasks}タスク\n在庫合計: ${totalStock}個`
+              '伝票を生成できません',
+              validation.errors.join('\n'),
+              `伝票数: ${state.slipCount}枚 × ${state.itemsPerSlip}品（数量: ${state.quantityLevel}）`
             );
             return;
           }
@@ -3428,7 +3416,18 @@
           });
         });
 
+        const showNotify = inject('showNotify');
         const restartPractice = () => {
+          const validation = window.PickingTrainer.validateSlipGeneration(
+            state.products,
+            state.slipCount,
+            state.itemsPerSlip,
+            state.quantityLevel
+          );
+          if (!validation.valid) {
+            showNotify('伝票を生成できません', validation.errors.join('\n'));
+            return;
+          }
           actions.startSlipMode();
         };
 
@@ -4231,16 +4230,6 @@
         // アクション
         const actions = {
           startSlipMode() {
-            const validation = window.PickingTrainer.validateSlipGeneration(
-              state.products,
-              state.slipCount,
-              state.itemsPerSlip,
-              state.quantityLevel
-            );
-            if (!validation.valid) {
-              showNotify('伝票を生成できません', validation.errors.join('\n'));
-              return;
-            }
             const slips = window.PickingTrainer.generateSlips(
               state.products,
               state.slipCount,
