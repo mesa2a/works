@@ -1384,80 +1384,30 @@
       transition: width 0.4s ease;
     }
 
-    /* スキャナー（通常表示: 商品登録用） */
-    #product-scanner-container {
+    /* スキャナー（共通） */
+    #scanner-container, #product-scanner-container {
       width: 100%;
       max-width: 320px;
-      margin: 0 auto 16px;
+      margin: 0 auto 12px;
       border-radius: var(--radius-sm);
       overflow: hidden;
     }
 
-    #product-scanner-container video {
+    #scanner-container video, #product-scanner-container video {
       width: 100%;
       height: 160px;
       object-fit: cover;
       border-radius: var(--radius-sm);
     }
 
-    /* スキャナー PiP（検品用フローティング） */
-    .scanner-pip {
-      position: fixed;
-      bottom: 80px;
-      right: 12px;
-      z-index: 200;
-      width: 160px;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      border: 2px solid var(--color-primary);
-      background: #000;
-      touch-action: none;
-      transition: opacity 0.2s;
-    }
-
-    .scanner-pip #scanner-container {
-      width: 100%;
-      margin: 0;
-    }
-
-    .scanner-pip #scanner-container video {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .scanner-pip-toggle {
-      position: fixed;
-      bottom: 80px;
-      right: 12px;
-      z-index: 201;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: var(--color-primary);
-      color: white;
-      border: none;
-      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
-    }
-
-    .scanner-pip-toggle:active {
-      transform: scale(0.92);
-    }
-
-    .scanner-pip-toggle.active {
-      background: var(--color-danger);
-    }
-
-    .scanner-pip-toggle .icon-svg {
-      width: 24px;
-      height: 24px;
+    /* 検品スキャナー sticky */
+    .scanner-sticky {
+      position: sticky;
+      top: var(--header-height, 96px);
+      z-index: 50;
+      padding: 8px 0;
+      margin: 0 auto 12px;
+      max-width: 600px;
     }
 
     /* ボトムナビ */
@@ -2714,13 +2664,14 @@
             </div>
           </div>
 
-          <!-- スキャナー PiP（フローティング） -->
-          <div v-if="scannerActive" class="scanner-pip">
-            <div id="scanner-container"></div>
+          <div class="scanner-sticky">
+            <div class="card" style="margin-bottom:0;">
+              <div id="scanner-container"></div>
+              <button class="btn btn-secondary" @click="toggleScanner">
+                <span v-html="scannerActive ? icons.squareStop : icons.camera"></span> {{ scannerActive ? 'スキャンを停止' : 'スキャンを開始' }}
+              </button>
+            </div>
           </div>
-          <button class="scanner-pip-toggle" :class="{ active: scannerActive }" @click="toggleScanner">
-            <span v-html="scannerActive ? icons.squareStop : icons.camera"></span>
-          </button>
 
           <div class="card">
             <div class="card-title"><span v-html="icons.circleCheck"></span> 検品リスト</div>
